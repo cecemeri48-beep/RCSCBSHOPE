@@ -86,6 +86,10 @@ drop policy if exists "admins can update members" on public.members;
 create policy "admins can update members" on public.members for update to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
+drop policy if exists "admins can delete members" on public.members;
+create policy "admins can delete members" on public.members for delete to authenticated
+  using (public.is_admin());
+
 drop policy if exists "admins can read admin list" on public.admin_users;
 create policy "admins can read admin list" on public.admin_users for select to authenticated
   using (public.is_admin());

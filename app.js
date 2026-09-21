@@ -40,14 +40,20 @@ function renderQRCode(canvas, value) {
   }
 }
 
-function renderResult(member, target=$('#verificationResult')) {
-  if (!member) { target.innerHTML='<div class="empty-state"><span>×</span><h3>Data tidak ditemukan</h3><p>Periksa nomor registrasi atau hubungi pengurus.</p></div>'; return; }
-  const photo = member.photo_url ? `<img class="result-photo" src="${safe(member.photo_url)}" alt="Foto ${safe(member.name)}" />` : `<div class="result-photo result-photo-placeholder">${safe(initials(member.name))}</div>`;
-  target.innerHTML = `<div class="result-card"><div>${photo}</div><div><div class="result-kicker">Anggota aktif</div><h3>${safe(member.name)}</h3><div class="result-id">${safe(member.registration_number || 'Menunggu nomor registrasi')}</div><div class="result-meta"><div><span>Orang tua</span><strong>${safe(member.parent_name)}</strong></div><div><span>Gol. darah</span><strong>${safe(member.blood_type)}</strong></div><div><span>Angkatan</span><strong>${safe(member.cohort_year)}</strong></div><div><span>Status</span><strong>${safe(member.status || 'Aktif')}</strong></div></div></div><div class="qr-box"><canvas id="resultQr"></canvas></div><div class="print-actions"><button class="button button-primary" id="printMemberCard">Cetak / PDF <span>↗</span></button></div></div>`;
-  renderQRCode($('#resultQr'), verifyUrl(member.public_token || member.id));
-  $('#printMemberCard')?.addEventListener('click', () => openPrintCard(member));
+function cardPhotoMarkup(member) {
+  const fallback = `<div class="id-card-photo placeholder" style="display:${member.photo_url ? 'none' : 'grid'}">${safe(initials(member.name))}</div>`;
+  if (!member.photo_url) return `<div class="photo-shell">${fallback}</div>`;
+  return `<div class="photo-shell"><img class="id-card-photo" src="${safe(member.photo_url)}" alt="Foto ${safe(member.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'" />${fallback}</div>`;
 }
 
+function renderResult(member, target=$('#verificationResult')) {
+  if (!member) { target.innerHTML='<div class="empty"><span>×</span><strong>Data tidak ditemukan</strong><small>Periksa nomor registrasi atau hubungi pengurus.</small></div>'; return; }
+  const logo = $('.brand img')?.src || '';
+  target.innerHTML = `<div class="verification-card-wrap"><div class="id-card-face verification-id-card"><div class="id-card-top"><img class="id-card-logo" src="${safe(logo)}" alt="Logo RCS.CBS HOPE" /><span class="id-card-badge">${safe(member.status || 'ANGGOTA')}</span></div><div class="id-card-main">${cardPhotoMarkup(member)}<div><span class="id-card-label">Nama anggota</span><div class="id-card-name">${safe(member.name).toUpperCase()}</div><div class="id-card-reg">${safe(member.registration_number || 'Nomor belum diterbitkan')}</div></div></div><div class="id-card-qr"><canvas id="resultQr"></canvas></div><div class="id-card-bottom"><span>RCS.CBS HOPE · 2026</span><span>MEMBER ID</span></div></div><div class="verification-card-info"><div><span>Orang tua</span><strong>${safe(member.parent_name)}</strong></div><div><span>Golongan darah</span><strong>${safe(member.blood_type)}</strong></div><div><span>Angkatan</span><strong>${safe(member.cohort_year)}</strong></div></div><div class="verification-actions"><button class="btn btn-dark" id="printMemberCard" type="button">Download Kartu PDF <b>↓</b></button><button class="btn btn-outline" id="previewMemberCard" type="button">Lihat sisi belakang</button></div></div>`;
+  renderQRCode($('#resultQr'), verifyUrl(member.public_token || member.id));
+  $('#printMemberCard')?.addEventListener('click', () => openPrintCard(member));
+  $('#previewMemberCard')?.addEventListener('click', () => openCardPreview(member));
+}
 function openPrintCard(member) {
   const logo = $('.brand img')?.src || '';
   const photo = member.photo_url ? `<img class="print-photo" src="${safe(member.photo_url)}" alt="" />` : `<div class="print-photo print-placeholder">${safe(initials(member.name))}</div>`;
@@ -84,9 +90,18 @@ $('#verifyForm').addEventListener('submit', async (event)=>{event.preventDefault
 async function loadMembers() {
   let items=[]; if (isConfigured()) { const { data, error }=await sb.from('members').select('*').order('created_at',{ascending:false}); if(error) throw error; items=data||[]; } else items=demoMembers();
   $('#totalCount').textContent=items.length; $('#pendingCount').textContent=items.filter(x=>x.status==='Menunggu Verifikasi').length; $('#activeCount').textContent=items.filter(x=>x.status==='Aktif').length;
-  const tbody=$('#membersTable'); if(!items.length){tbody.innerHTML='<tr><td colspan="5" class="table-empty">Belum ada data.</td></tr>';return;} tbody.innerHTML=items.map(m=>`<tr><td>${safe(m.registration_number||'—')}</td><td><b>${safe(m.name)}</b></td><td>${safe(m.parent_name)}</td><td><select class="status-select" data-id="${safe(m.id)}"><option ${m.status==='Menunggu Verifikasi'?'selected':''}>Menunggu Verifikasi</option><option ${m.status==='Perlu Perbaikan'?'selected':''}>Perlu Perbaikan</option><option ${m.status==='Aktif'?'selected':''}>Aktif</option><option ${m.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></td><td><button class="button button-ghost small view-member" data-id="${safe(m.id)}">Lihat</button></td></tr>`).join('');
+  const tbody=$('#membersTable'); if(!items.length){tbody.innerHTML='<tr><td colspan="5" class="table-empty">Belum ada data.</td></tr>';return;} tbody.innerHTML=items.map(m=>`<tr><td>${safe(m.registration_number||'—')}</td><td><b>${safe(m.name)}</b></td><td>${safe(m.parent_name)}</td><td><select class="status-select" data-id="${safe(m.id)}"><option ${m.status==='Menunggu Verifikasi'?'selected':''}>Menunggu Verifikasi</option><option ${m.status==='Perlu Perbaikan'?'selected':''}>Perlu Perbaikan</option><option ${m.status==='Aktif'?'selected':''}>Aktif</option><option ${m.status==='Nonaktif'?'selected':''}>Nonaktif</option></select></td><td><div class="table-actions"><button class="btn btn-outline small view-member" data-id="${safe(m.id)}" type="button">Lihat</button><button class="btn btn-danger small delete-member" data-id="${safe(m.id)}" type="button">Hapus</button></div></td></tr>`).join('');
   $$('.status-select',tbody).forEach(el=>el.addEventListener('change',()=>updateStatus(el.dataset.id,el.value)));
   $$('.view-member',tbody).forEach(el=>el.addEventListener('click',()=>{const m=items.find(x=>x.id===el.dataset.id);openCardPreview(m);}));
+  $$('.delete-member',tbody).forEach(el=>el.addEventListener('click',()=>deleteMember(el.dataset.id)));
+}
+async function deleteMember(id) {
+  if (!window.confirm('Hapus data anggota ini? Tindakan ini tidak dapat dibatalkan.')) return;
+  try {
+    if (isConfigured()) { const { error } = await sb.from('members').delete().eq('id', id); if (error) throw error; }
+    else { saveDemo(demoMembers().filter(member => member.id !== id)); }
+    toast('Data anggota dihapus'); await loadMembers();
+  } catch (error) { toast(error.message || 'Data gagal dihapus'); }
 }
 async function updateStatus(id,status){try{if(isConfigured()){const {error}=await sb.from('members').update({status}).eq('id',id);if(error)throw error;}else{const items=demoMembers().map(m=>m.id===id?{...m,status}:m);saveDemo(items)}toast('Status diperbarui');loadMembers();}catch(e){toast(e.message||'Status gagal diperbarui')}}
 $('#adminLoginForm').addEventListener('submit',async e=>{e.preventDefault();const alert=$('#adminAlert');clearAlert(alert);try{if(!isConfigured()){alertBox(alert,'Mode demo aktif: dashboard contoh dibuka. Isi config.js untuk login Supabase.','success');$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');loadMembers();return;}const {error}=await sb.auth.signInWithPassword({email:$('#adminEmail').value,password:$('#adminPassword').value});if(error)throw error;$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');await loadMembers();}catch(e){alertBox(alert,e.message||'Login gagal.','error')}});
