@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v59 mobile clean
+RCS.CBS HOPE — v60 QR cleanup
 
 Replace/upload ONLY:
 - index.html
@@ -7,12 +7,6 @@ Replace/upload ONLY:
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:
-https://rcscbshope.vercel.app/?v=59
+https://rcscbshope.vercel.app/?v=60
 
-Perubahan mobile:
-- Panel 01–03 yang berulang dan memakan tempat dihapus.
-- Form tetap dikelompokkan secara jelas: identitas, kontak, foto & persetujuan.
-- Preview foto, validasi ukuran, dan tombol ganti foto tetap tersedia.
-- Tombol kirim tetap mudah dijangkau di mobile.
-- Halaman sukses, approval WhatsApp, scan, dan download tetap dipertahankan.
-- Semua perbaikan koneksi/RLS/kompatibilitas HP sebelumnya tetap termasuk.
+Perubahan: kotak putih tambahan di belakang QR dihapus. QR tetap memiliki area putih bawaan/quiet zone agar tetap mudah dipindai dan posisinya presisi.

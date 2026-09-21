@@ -173,3 +173,6 @@
   .quick-strip b{font-size:17px;line-height:1.1}
   .quick-strip span{font-size:9px;line-height:1.25;white-space:nowrap}
 }
+
+/* QR visual cleanup v60: remove the extra wrapper box; keep only the QR quiet zone */
+.id-card-qr{background:transparent;padding:0;border-radius:0}
