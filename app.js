@@ -57,7 +57,7 @@ function cardPhotoMarkup(member) {
 function renderResult(member, target=$('#verificationResult')) {
   if (!member) { target.innerHTML='<div class="empty"><span>×</span><strong>Data tidak ditemukan</strong><small>Periksa nomor registrasi atau hubungi pengurus.</small></div>'; return; }
   const logo = $('.brand img')?.src || '';
-  target.innerHTML = `<div class="verification-card-wrap"><div class="verification-card-visual"><div class="id-card-face verification-id-card" id="verifiedFront"><div class="membership-watermark">MEMBERS ONLY</div><div class="id-card-top"><img class="id-card-logo" src="${safe(logo)}" alt="Logo RCS.CBS HOPE" /><span class="id-card-badge">${safe(member.status || 'ANGGOTA')}</span></div><div class="id-card-main">${cardPhotoMarkup(member)}<div><span class="id-card-label">Nama anggota</span><div class="id-card-name">${safe(member.name).toUpperCase()}</div><div class="id-card-reg">${safe(member.registration_number || 'Nomor belum diterbitkan')}</div><div class="id-card-blood">GOL. DARAH <b>${safe(member.blood_type)}</b></div><div class="id-card-tagline">PENCINTA ALAM · COMMUNITY MEMBER</div></div></div><div class="id-card-qr"><canvas id="resultQr"></canvas></div><div class="id-card-bottom"><span>RCS.CBS HOPE · 2026</span><span>MEMBER ID</span></div></div><div class="id-card-back verification-card-back hidden" id="verifiedBack"><div class="back-copy"><span class="back-kicker">REICHAS CHELEBES</span><strong>Bangga menjadi bagian Keluarga Pencinta Alam.</strong><p>Saling mengenal, saling menjaga. Kartu ini adalah identitas anggota untuk kegiatan organisasi pencinta alam.</p></div><div class="back-detail"><div class="back-detail-block"><span>PEMILIK LEGACY</span><strong>${safe(member.parent_name).toUpperCase()}</strong></div><div class="back-detail-block"><span>NAMA ANGKATAN</span><strong>${safe(member.cohort_name || '-').toUpperCase()}</strong></div></div></div></div><div class="verification-card-info"><div><span>Pemilik legacy</span><strong>${safe(member.parent_name)}</strong></div><div><span>Golongan darah</span><strong>${safe(member.blood_type)}</strong></div><div><span>Nama angkatan</span><strong>${safe(member.cohort_name || '-').toUpperCase()}</strong></div></div><div class="verification-actions"><button class="btn btn-dark" id="printMemberCard" type="button">Download Kartu PDF <b>↓</b></button><button class="btn btn-outline" id="toggleCardSide" type="button">Lihat sisi belakang <b>↔</b></button></div></div>`;
+  target.innerHTML = `<div class="verification-card-wrap"><div class="verification-card-visual"><div class="id-card-face verification-id-card" id="verifiedFront"><div class="membership-watermark">MEMBERS ONLY</div><div class="id-card-top"><img class="id-card-logo" src="${safe(logo)}" alt="Logo RCS.CBS HOPE" /><span class="id-card-badge">${safe(member.status || 'ANGGOTA')}</span></div><div class="id-card-main">${cardPhotoMarkup(member)}<div><span class="id-card-label">Nama anggota</span><div class="id-card-name">${safe(member.name).toUpperCase()}</div><div class="id-card-reg">${safe(member.registration_number || 'Nomor belum diterbitkan')}</div><div class="id-card-blood">GOL. DARAH <b>${safe(member.blood_type)}</b></div><div class="id-card-tagline">PENCINTA ALAM · COMMUNITY MEMBER</div></div></div><div class="id-card-qr"><canvas id="resultQr"></canvas></div><div class="id-card-bottom"><span>RCS.CBS HOPE · 2026</span><span>MEMBER ID</span></div></div><div class="id-card-back verification-card-back hidden" id="verifiedBack"><div class="back-copy"><span class="back-kicker">REICHAS CHELEBES</span><strong>Bangga menjadi bagian Keluarga Pencinta Alam.</strong><p>Saling mengenal, saling menjaga. Kartu ini adalah identitas anggota untuk kegiatan organisasi pencinta alam.</p></div><div class="back-detail"><div class="back-detail-block"><span>PEMILIK LEGACY</span><strong>${safe(member.parent_name).toUpperCase()}</strong></div><div class="back-detail-block"><span>NAMA ANGKATAN</span><strong>${safe(member.cohort_name || '-').toUpperCase()}</strong></div></div></div></div><div class="verification-card-info"><div><span>Pemilik legacy</span><strong>${safe(member.parent_name).toUpperCase()}</strong></div><div><span>Golongan darah</span><strong>${safe(member.blood_type)}</strong></div><div><span>Nama angkatan</span><strong>${safe(member.cohort_name || '-').toUpperCase()}</strong></div></div><div class="verification-actions"><button class="btn btn-dark" id="printMemberCard" type="button">Download Kartu PDF <b>↓</b></button><button class="btn btn-outline" id="toggleCardSide" type="button">Lihat sisi belakang <b>↔</b></button></div></div>`;
   renderQRCode($('#resultQr'), verifyUrl(member.public_token || member.id));
   $('#printMemberCard')?.addEventListener('click', () => openPrintCard(member));
   $('#toggleCardSide')?.addEventListener('click', (event) => {
@@ -106,7 +106,7 @@ $('#registrationForm').addEventListener('submit', async (event) => {
   const button = form.querySelector('button[type=submit]'); button.disabled = true; button.innerHTML='Menyimpan…';
   try {
     const photo = await uploadPhoto(file);
-    const payload = { name:data.get('name').trim(), parent_name:data.get('parent_name').trim(), cohort_name:data.get('cohort_name').trim().toUpperCase(), cohort_year:null, blood_type:data.get('blood_type'), parent_phone:data.get('parent_phone').trim(), parent_address:data.get('parent_address').trim(), photo_path:photo.path, photo_url:photo.url, consent:Boolean(data.get('consent')), status:'Menunggu Verifikasi' };
+    const payload = { name:data.get('name').trim().toUpperCase(), parent_name:data.get('parent_name').trim().toUpperCase(), cohort_name:data.get('cohort_name').trim().toUpperCase(), cohort_year:null, blood_type:data.get('blood_type'), parent_phone:data.get('parent_phone').trim(), parent_address:data.get('parent_address').trim().toUpperCase(), photo_path:photo.path, photo_url:photo.url, consent:Boolean(data.get('consent')), status:'Menunggu Verifikasi' };
     let member;
     if (isConfigured()) { const { data: inserted, error } = await sb.from('members').insert(payload).select().single(); if (error) throw error; member=inserted; }
     else { const items=demoMembers(); member={...payload,id:crypto.randomUUID(),public_token:crypto.randomUUID(),registration_number:demoRegistration(items.length+1)}; items.push(member); saveDemo(items); }
@@ -116,9 +116,21 @@ $('#registrationForm').addEventListener('submit', async (event) => {
   finally { button.disabled=false; button.innerHTML='Kirim data anak <span>→</span>'; }
 });
 
+function isUuid(value) { return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
 async function findMember(value) {
-  const key=value.trim(); if (!key) return null;
-  if (isConfigured()) { const { data, error } = await sb.from('member_verification').select('*').or(`registration_number.eq.${key},public_token.eq.${key}`).maybeSingle(); if (error) throw error; return data; }
+  const key=String(value || '').trim(); if (!key) return null;
+  const registrationKey=key.toUpperCase();
+  if (isConfigured()) {
+    const byRegistration=await sb.from('member_verification').select('*').eq('registration_number',registrationKey).maybeSingle();
+    if (byRegistration.error) throw byRegistration.error;
+    if (byRegistration.data) return byRegistration.data;
+    if (isUuid(key)) {
+      const byToken=await sb.from('member_verification').select('*').eq('public_token',key).maybeSingle();
+      if (byToken.error) throw byToken.error;
+      return byToken.data || null;
+    }
+    return null;
+  }
   return demoMembers().find(m=>m.registration_number?.toLowerCase()===key.toLowerCase() || m.public_token===key) || null;
 }
 $('#verifyForm').addEventListener('submit', async (event)=>{event.preventDefault();const alert=$('#verifyAlert');clearAlert(alert);try{const member=await findMember($('#verifyInput').value);if(!member) {renderResult(null);alertBox(alert,'Data tidak ditemukan. Periksa kembali nomor registrasi.','error');} else {renderResult(member);alertBox(alert,'Data anggota ditemukan.','success');}}catch(e){alertBox(alert,e.message||'Verifikasi gagal.','error')}});
