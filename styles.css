@@ -59,3 +59,44 @@
   .brand small{display:block;font-size:7px;letter-spacing:.12em}
   .top-link{font-size:11px}
 }
+/* Modal card preview: mobile composition */
+@media(max-width:760px){
+  .modal-sheet{padding:16px 14px;border-radius:18px}
+  .modal-sheet h2{font-size:26px;margin-bottom:14px}
+  .id-card-preview .id-card-face{padding:16px;aspect-ratio:1.58;min-height:0}
+  .id-card-preview .id-card-top{font-size:8px}
+  .id-card-preview .id-card-logo{width:34px;height:34px}
+  .id-card-preview .id-card-badge{font-size:7px;padding:4px 7px;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .id-card-preview .id-card-main{margin-top:18px;gap:9px;padding-right:82px;align-items:center}
+  .id-card-preview .id-card-main>div:last-child{min-width:0;overflow:hidden}
+  .id-card-preview .id-card-photo{width:68px;height:78px;flex:none}
+  .id-card-preview .id-card-label{font-size:8px}
+  .id-card-preview .id-card-name{font-size:clamp(16px,5.2vw,22px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .id-card-preview .id-card-reg{font-size:8px;white-space:nowrap;letter-spacing:-.03em}
+  .id-card-preview .id-card-blood{font-size:7px;margin-top:5px;padding:3px 6px;white-space:nowrap}
+  .id-card-preview .id-card-blood b{font-size:10px}
+  .id-card-preview .id-card-tagline{display:none}
+  .id-card-preview .id-card-qr{right:14px;top:48px;bottom:auto;width:62px;height:62px;padding:4px;border-radius:6px;box-shadow:0 3px 10px rgba(0,0,0,.22)}
+  .id-card-preview .id-card-bottom{right:12px;bottom:10px;width:92px;max-width:92px;gap:2px;line-height:1.2;font-size:5.5px;letter-spacing:.10em;white-space:nowrap}
+  .id-card-preview .membership-watermark{left:14px;bottom:12px;font-size:7px;padding:4px 7px;letter-spacing:.10em}
+  .id-card-preview .id-card-back{padding:18px;aspect-ratio:1.58;min-height:0}
+  .id-card-preview .back-compass-img{right:8px;bottom:10px;width:112px;height:112px;opacity:.48}
+  .id-card-preview .back-copy{max-width:56%;z-index:2}
+  .id-card-preview .back-kicker{font-size:8px;letter-spacing:.14em;margin-bottom:7px}
+  .id-card-preview .back-copy strong{font-size:14px;line-height:1.22;margin-bottom:5px}
+  .id-card-preview .back-copy p{font-size:8.5px;line-height:1.35}
+  .id-card-preview .back-detail{left:18px;right:auto;bottom:11px;max-width:57%;gap:5px;line-height:1.15}
+  .id-card-preview .back-detail-block{gap:1px}
+  .id-card-preview .back-detail-block span{font-size:6.5px;letter-spacing:.10em}
+  .id-card-preview .back-detail-block strong{font-size:8.5px;letter-spacing:.04em}
+  .modal-actions{margin-top:12px}
+}
+@media(max-width:390px){
+  .id-card-preview .id-card-qr{right:12px;top:45px;width:55px;height:55px}
+  .id-card-preview .id-card-main{padding-right:72px}
+  .id-card-preview .id-card-photo{width:62px;height:72px}
+  .id-card-preview .id-card-name{font-size:17px}
+  .id-card-preview .id-card-bottom{width:84px;max-width:84px;font-size:5px}
+}
+
+.registration-edit{display:flex;gap:5px;align-items:center;min-width:245px}.registration-input{width:180px;min-height:34px;border:1px solid var(--line);border-radius:7px;padding:0 8px;font-size:11px;color:var(--ink);text-transform:uppercase}.registration-input:focus{outline:0;border-color:#91aeb0;box-shadow:0 0 0 3px #e7f0ee}.registration-input::placeholder{text-transform:none;color:#9aa6a3}
