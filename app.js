@@ -10,6 +10,7 @@ const safe = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt
 const initials = (name='') => name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase() || 'RC';
 const siteUrl = () => cfg.siteUrl || window.location.origin;
 const verifyUrl = (token) => `${siteUrl()}/#verify=${token}`;
+const localDemoAllowed = window.location.protocol === 'file:' || ['localhost','127.0.0.1'].includes(window.location.hostname);
 let activeMember = null; let adminMembers = [];
 
 function alertBox(el, message, kind='success') { el.textContent = message; el.className = `form-alert ${kind}`; }
@@ -17,12 +18,31 @@ function clearAlert(el) { el.textContent=''; el.className='form-alert'; }
 function toast(message) { const el=$('#toast'); el.textContent=message; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2800); }
 function isConfigured() { return hasSupabase; }
 function demoRegistration(n) { return `${String(n).padStart(3,'0')}/RCSCBS/HOPE/2026`; }
+function uuid() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  if (window.crypto?.getRandomValues) {
+    const bytes = new Uint8Array(16); window.crypto.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128;
+    const hex=[...bytes].map(x=>x.toString(16).padStart(2,'0')).join('');
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  }
+  throw new Error('Browser tidak mendukung pembuatan identitas aman. Perbarui Chrome lalu coba lagi.');
+}
+function requireBackend() {
+  if (!isConfigured() && !localDemoAllowed) throw new Error('Koneksi server belum siap di perangkat ini. Muat ulang halaman dan pastikan JavaScript tidak diblokir.');
+}
 
 function withTimeout(promise, ms, message) { return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms))]); }
 async function optimizePhoto(file) {
-  if (!file || file.size <= 1.5 * 1024 * 1024 || !window.createImageBitmap) return file;
+  if (!file || file.size <= 1.5 * 1024 * 1024) return file;
   try {
-    const bitmap=await createImageBitmap(file); const max=1600; const scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height)); const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(bitmap.width*scale)); canvas.height=Math.max(1,Math.round(bitmap.height*scale)); canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close?.();
+    let source;
+    if (window.createImageBitmap) source=await createImageBitmap(file);
+    else {
+      const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Foto tidak dapat dibaca.'));reader.readAsDataURL(file);});
+      source=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Format foto tidak didukung browser ini.'));image.src=dataUrl;});
+    }
+    const sourceWidth=source.width || source.naturalWidth; const sourceHeight=source.height || source.naturalHeight; const max=1600; const scale=Math.min(1,max/Math.max(sourceWidth,sourceHeight)); const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(sourceWidth*scale)); canvas.height=Math.max(1,Math.round(sourceHeight*scale)); canvas.getContext('2d').drawImage(source,0,0,canvas.width,canvas.height); source.close?.();
     const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Foto tidak dapat diproses.')),'image/jpeg',.82));
     return new File([blob], `${(file.name||'foto').replace(/\.[^.]+$/,'')}.jpg`, {type:'image/jpeg'});
   } catch (_) { return file; }
@@ -31,8 +51,11 @@ async function uploadPhoto(file) {
   if (!file) return { path:null, url:null };
   const prepared=await optimizePhoto(file);
   if (prepared.size > 5 * 1024 * 1024) throw new Error('Ukuran foto maksimal 5 MB. Pilih foto yang lebih kecil.');
-  if (!isConfigured()) return { path: `demo/${prepared.name}`, url: URL.createObjectURL(prepared) };
-  const ext = (prepared.name.split('.').pop() || 'jpg').toLowerCase(); const path = `${crypto.randomUUID()}.${ext}`;
+  if (!isConfigured()) {
+    if (!localDemoAllowed) throw new Error('Koneksi server belum siap. Muat ulang halaman lalu coba lagi.');
+    return { path: `demo/${prepared.name}`, url: URL.createObjectURL(prepared) };
+  }
+  const ext = (prepared.name.split('.').pop() || 'jpg').toLowerCase(); const path = `${uuid()}.${ext}`;
   const { error } = await withTimeout(sb.storage.from('member-photos').upload(path, prepared, { upsert:false, contentType:prepared.type || 'image/jpeg' }), 30000, 'Upload foto terlalu lama. Periksa koneksi internet lalu coba lagi.');
   if (error) throw error;
   const { data } = sb.storage.from('member-photos').getPublicUrl(path);
@@ -124,6 +147,7 @@ $('#registrationForm').addEventListener('submit', async (event) => {
   const data = new FormData(form); const file = data.get('photo');
   const button = form.querySelector('button[type=submit]'); button.disabled = true; button.innerHTML='Mengunggah foto…';
   try {
+    requireBackend();
     const photo = await uploadPhoto(file);
     button.innerHTML='Menyimpan data…';
     const payload = { name:data.get('name').trim().toUpperCase(), parent_name:data.get('parent_name').trim().toUpperCase(), cohort_name:data.get('cohort_name').trim().toUpperCase(), cohort_year:null, blood_type:data.get('blood_type'), parent_phone:data.get('parent_phone').trim(), parent_address:data.get('parent_address').trim().toUpperCase(), photo_path:photo.path, photo_url:photo.url, consent:Boolean(data.get('consent')), status:'Menunggu Verifikasi' };
@@ -143,7 +167,7 @@ $('#registrationForm').addEventListener('submit', async (event) => {
       if (error) throw error;
       member={...payload, registration_number:null, public_token:null};
     }
-    else { const items=demoMembers(); member={...payload,id:crypto.randomUUID(),public_token:crypto.randomUUID(),registration_number:null}; items.push(member); saveDemo(items); }
+    else { const items=demoMembers(); member={...payload,id:uuid(),public_token:uuid(),registration_number:null}; items.push(member); saveDemo(items); }
     activeMember=member; form.reset();
     alertBox(alert, 'Data berhasil dikirim. Silakan bergabung ke grup WhatsApp dan hubungi admin agar data diperiksa dan disetujui.', 'success');
     toast('Data anggota berhasil disimpan');
@@ -222,7 +246,7 @@ async function deleteMember(id) {
 }
 async function updateRegistrationNumber(id,value){const registration_number=String(value||'').trim().toUpperCase();if(!registration_number){toast('Isi nomor registrasi terlebih dahulu');return;}try{if(isConfigured()){const {error}=await sb.from('members').update({registration_number}).eq('id',id);if(error)throw error;}else{const items=demoMembers().map(m=>m.id===id?{...m,registration_number}:m);saveDemo(items)}toast('Nomor registrasi disimpan');await loadMembers();}catch(e){toast(e.message||'Nomor registrasi gagal disimpan')}}
 async function updateStatus(id,status){try{if(isConfigured()){const {error}=await sb.from('members').update({status}).eq('id',id);if(error)throw error;}else{const items=demoMembers().map(m=>m.id===id?{...m,status}:m);saveDemo(items)}toast('Status diperbarui');loadMembers();}catch(e){toast(e.message||'Status gagal diperbarui')}}
-$('#adminLoginForm').addEventListener('submit',async e=>{e.preventDefault();const alert=$('#adminAlert');clearAlert(alert);try{if(!isConfigured()){alertBox(alert,'Mode demo aktif: dashboard contoh dibuka. Isi config.js untuk login Supabase.','success');$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');loadMembers();return;}const {error}=await sb.auth.signInWithPassword({email:$('#adminEmail').value,password:$('#adminPassword').value});if(error)throw error;$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');await loadMembers();}catch(e){alertBox(alert,e.message||'Login gagal.','error')}});
+$('#adminLoginForm').addEventListener('submit',async e=>{e.preventDefault();const alert=$('#adminAlert');clearAlert(alert);try{if(!isConfigured()){if(!localDemoAllowed)throw new Error('Koneksi server belum siap di perangkat ini. Muat ulang halaman lalu coba lagi.');alertBox(alert,'Mode demo aktif: dashboard contoh dibuka. Isi config.js untuk login Supabase.','success');$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');loadMembers();return;}const {error}=await sb.auth.signInWithPassword({email:$('#adminEmail').value,password:$('#adminPassword').value});if(error)throw error;$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');await loadMembers();}catch(e){alertBox(alert,e.message||'Login gagal.','error')}});
 function csvCell(value){return `"${String(value ?? '').replace(/"/g,'""')}"`;}
 function downloadMembersCsv(){const headers=['No. Registrasi','Nama Anggota','Nama Orang Tua','Nama Angkatan Orang Tua','Golongan Darah Anggota','WhatsApp Orang Tua','Alamat Orang Tua','Status','Tanggal Input'];const rows=adminMembers.map(m=>[m.registration_number,m.name,m.parent_name,m.cohort_name,m.blood_type,m.parent_phone,m.parent_address,m.status,m.created_at].map(csvCell).join(','));const csv='\\ufeff'+[headers.map(csvCell).join(','),...rows].join('\\r\\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='data-anggota-rcs-cbs-hope.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('Data berhasil diunduh');}
 $('#downloadMembers')?.addEventListener('click',downloadMembersCsv);$('#adminSearch')?.addEventListener('input',renderAdminRows);$('#adminStatusFilter')?.addEventListener('change',renderAdminRows);$('#clearAdminFilters')?.addEventListener('click',()=>{if($('#adminSearch'))$('#adminSearch').value='';if($('#adminStatusFilter'))$('#adminStatusFilter').value='';renderAdminRows();});$('#refreshMembers').addEventListener('click',()=>loadMembers());$('#adminSignOut').addEventListener('click',async()=>{if(isConfigured())await sb.auth.signOut();$('#adminDashboardView').classList.add('hidden');$('#adminLoginView').classList.remove('hidden');toast('Anda telah keluar');});
