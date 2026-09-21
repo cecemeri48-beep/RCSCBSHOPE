@@ -30,3 +30,15 @@
   .verification-card-info span{font-size:8px;line-height:1.3}
   .verification-card-info strong{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
+
+@media(max-width:760px){
+  .verification-id-card .id-card-main{padding-right:78px}
+  .verification-id-card .id-card-qr{right:16px;top:116px;bottom:auto;width:58px;height:58px;padding:4px;border-radius:6px;box-shadow:0 3px 12px rgba(0,0,0,.24)}
+  .verification-id-card .id-card-bottom{right:13px;bottom:11px;max-width:86px;font-size:5.5px}
+}
+@media(max-width:390px){
+  .verification-id-card .id-card-qr{right:13px;top:112px;width:52px;height:52px}
+  .verification-id-card .id-card-main{padding-right:69px}
+  .verification-id-card .id-card-photo{width:66px;height:76px}
+  .verification-id-card .id-card-name{font-size:17px}
+}
