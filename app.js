@@ -18,13 +18,22 @@ function toast(message) { const el=$('#toast'); el.textContent=message; el.class
 function isConfigured() { return hasSupabase; }
 function demoRegistration(n) { return `${String(n).padStart(3,'0')}/RCSCBS/HOPE/2026`; }
 
+function withTimeout(promise, ms, message) { return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms))]); }
+async function optimizePhoto(file) {
+  if (!file || file.size <= 1.5 * 1024 * 1024 || !window.createImageBitmap) return file;
+  try {
+    const bitmap=await createImageBitmap(file); const max=1600; const scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height)); const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(bitmap.width*scale)); canvas.height=Math.max(1,Math.round(bitmap.height*scale)); canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close?.();
+    const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Foto tidak dapat diproses.')),'image/jpeg',.82));
+    return new File([blob], `${(file.name||'foto').replace(/\.[^.]+$/,'')}.jpg`, {type:'image/jpeg'});
+  } catch (_) { return file; }
+}
 async function uploadPhoto(file) {
   if (!file) return { path:null, url:null };
-  if (file.size > 5 * 1024 * 1024) throw new Error('Ukuran foto maksimal 5 MB.');
-  if (!isConfigured()) return { path: `demo/${file.name}`, url: URL.createObjectURL(file) };
-  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const path = `${crypto.randomUUID()}.${ext}`;
-  const { error } = await sb.storage.from('member-photos').upload(path, file, { upsert:false, contentType:file.type });
+  const prepared=await optimizePhoto(file);
+  if (prepared.size > 5 * 1024 * 1024) throw new Error('Ukuran foto maksimal 5 MB. Pilih foto yang lebih kecil.');
+  if (!isConfigured()) return { path: `demo/${prepared.name}`, url: URL.createObjectURL(prepared) };
+  const ext = (prepared.name.split('.').pop() || 'jpg').toLowerCase(); const path = `${crypto.randomUUID()}.${ext}`;
+  const { error } = await withTimeout(sb.storage.from('member-photos').upload(path, prepared, { upsert:false, contentType:prepared.type || 'image/jpeg' }), 30000, 'Upload foto terlalu lama. Periksa koneksi internet lalu coba lagi.');
   if (error) throw error;
   const { data } = sb.storage.from('member-photos').getPublicUrl(path);
   return { path, url:data.publicUrl };
@@ -113,12 +122,13 @@ $('#registrationForm').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget; const alert = $('#registrationAlert'); clearAlert(alert);
   const data = new FormData(form); const file = data.get('photo');
-  const button = form.querySelector('button[type=submit]'); button.disabled = true; button.innerHTML='Menyimpan…';
+  const button = form.querySelector('button[type=submit]'); button.disabled = true; button.innerHTML='Mengunggah foto…';
   try {
     const photo = await uploadPhoto(file);
+    button.innerHTML='Menyimpan data…';
     const payload = { name:data.get('name').trim().toUpperCase(), parent_name:data.get('parent_name').trim().toUpperCase(), cohort_name:data.get('cohort_name').trim().toUpperCase(), cohort_year:null, blood_type:data.get('blood_type'), parent_phone:data.get('parent_phone').trim(), parent_address:data.get('parent_address').trim().toUpperCase(), photo_path:photo.path, photo_url:photo.url, consent:Boolean(data.get('consent')), status:'Menunggu Verifikasi' };
     let member;
-    if (isConfigured()) { const { data: inserted, error } = await sb.from('members').insert(payload).select().single(); if (error) throw error; member=inserted; }
+    if (isConfigured()) { const { data: inserted, error } = await withTimeout(sb.from('members').insert(payload).select().single(), 30000, 'Penyimpanan terlalu lama. Periksa koneksi Supabase lalu coba lagi.'); if (error) throw error; member=inserted; }
     else { const items=demoMembers(); member={...payload,id:crypto.randomUUID(),public_token:crypto.randomUUID(),registration_number:null}; items.push(member); saveDemo(items); }
     activeMember=member; form.reset(); alertBox(alert, `Data berhasil dikirim. Nomor sementara: ${member.registration_number || 'menunggu verifikasi pengurus'}.`, 'success'); toast('Data anggota berhasil disimpan');
     setTimeout(()=>{ $('#cek').scrollIntoView({behavior:'smooth'}); renderResult(member); }, 450);
