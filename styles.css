@@ -116,3 +116,5 @@
 
 @media(max-width:760px){.verification-id-card .id-card-qr,.id-card-preview .id-card-qr{right:42px}.verification-id-card .id-card-bottom,.id-card-preview .id-card-bottom{right:35px}}
 @media(max-width:390px){.verification-id-card .id-card-qr,.id-card-preview .id-card-qr{right:36px}.verification-id-card .id-card-bottom,.id-card-preview .id-card-bottom{right:30px}}
+
+.similar-badge{display:inline-flex;margin-top:5px;padding:3px 6px;border-radius:999px;background:#fff1dc;color:#9a6b2d;font-size:8px;font-weight:800;letter-spacing:.02em}
