@@ -6,5 +6,5 @@
 window.RCS_CONFIG = {
   supabaseUrl: "https://ondywfxugwmxatlclmtx.supabase.co",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uZHl3Znh1Z3dteGF0bGNsbXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NTAyNTcsImV4cCI6MjEwNTUyNjI1N30.xy2jjLvp4Z2of40Lx6bvKs-HMvUANisSFg3LjRRPehE",
-  siteUrl:"databese.netlify.app" window.location.origin
+  siteUrl:window.location.origin
 };
