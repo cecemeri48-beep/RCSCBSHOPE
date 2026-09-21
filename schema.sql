@@ -26,6 +26,7 @@ create table if not exists public.members (
   cohort_year integer check (cohort_year between 1950 and 2100),
   blood_type public.blood_type not null,
   parent_phone text not null,
+  parent_address text,
   photo_path text,
   photo_url text,
   consent boolean not null default false,
@@ -36,6 +37,8 @@ create table if not exists public.members (
 
 alter table public.members add column if not exists cohort_name text;
 alter table public.members alter column cohort_year drop not null;
+alter table public.members add column if not exists parent_phone text;
+alter table public.members add column if not exists parent_address text;
 
 create or replace function public.assign_registration_number()
 returns trigger language plpgsql security definer set search_path = public as $$
