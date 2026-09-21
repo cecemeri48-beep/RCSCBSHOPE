@@ -112,4 +112,4 @@
   .verification-id-card .id-card-bottom,.id-card-preview .id-card-bottom{right:21px;width:88px;max-width:88px;font-size:5px}
 }
 
-.verification-actions .zoom-member-card{flex-basis:100%}
+.verification-actions .zoom-member-card,.verification-actions #toggleCardSide{flex-basis:100%}
