@@ -22,7 +22,8 @@ create table if not exists public.members (
   registration_number text unique,
   name text not null,
   parent_name text not null,
-  cohort_year integer not null check (cohort_year between 1950 and 2100),
+  cohort_name text,
+  cohort_year integer check (cohort_year between 1950 and 2100),
   blood_type public.blood_type not null,
   parent_phone text not null,
   photo_path text,
@@ -32,6 +33,9 @@ create table if not exists public.members (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.members add column if not exists cohort_name text;
+alter table public.members alter column cohort_year drop not null;
 
 create or replace function public.assign_registration_number()
 returns trigger language plpgsql security definer set search_path = public as $$
@@ -96,7 +100,7 @@ create policy "admins can read admin list" on public.admin_users for select to a
 
 -- View verifikasi hanya memuat informasi dasar anggota Aktif.
 create or replace view public.member_verification as
-  select public_token, registration_number, name, parent_name, cohort_year, blood_type::text as blood_type, photo_path, photo_url, status::text as status
+  select public_token, registration_number, name, parent_name, cohort_name, cohort_year, blood_type::text as blood_type, photo_path, photo_url, status::text as status
   from public.members where status = 'Aktif';
 grant select on public.member_verification to anon, authenticated;
 
