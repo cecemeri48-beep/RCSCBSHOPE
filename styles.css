@@ -42,3 +42,20 @@
   .verification-id-card .id-card-photo{width:66px;height:76px}
   .verification-id-card .id-card-name{font-size:17px}
 }
+
+/* Header polish */
+.topbar{overflow:hidden;border-color:rgba(194,207,202,.95);background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(245,248,246,.9));box-shadow:0 12px 28px rgba(20,34,40,.08),inset 0 1px 0 rgba(255,255,255,.95)}
+.topbar:before{content:"";position:absolute;left:0;top:0;width:92px;height:2px;background:linear-gradient(90deg,var(--red),#e9a18b);border-radius:0 0 4px 0}
+.brand{gap:11px;position:relative}
+.brand img{width:43px;height:43px;box-shadow:0 3px 10px rgba(20,34,40,.12)}
+.brand strong{font-size:15px;letter-spacing:.09em}
+.brand small{margin-top:2px;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#82908d;font-weight:700}
+.top-link{display:flex;align-items:center;gap:7px;font-size:12px;padding:7px 0 6px;border-bottom:1px solid var(--ink);white-space:nowrap}
+.top-link span{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;margin-left:0;font-size:12px;line-height:1}
+@media(max-width:760px){
+  .topbar{height:74px;margin-top:10px;margin-bottom:10px;padding:0 14px;border-radius:18px}
+  .brand img{width:42px;height:42px}
+  .brand strong{font-size:14px}
+  .brand small{display:block;font-size:7px;letter-spacing:.12em}
+  .top-link{font-size:11px}
+}
