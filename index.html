@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#17212b" />
+    <meta name="description" content="Portal registrasi dan kartu anggota RCS.CBS HOPE." />
+    <title>RCS.CBS HOPE — Portal Anggota</title>
+    <link rel="icon" href="assets/logo.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="#top" aria-label="RCS.CBS HOPE beranda">
+          <span class="brand-mark"><img src="assets/logo.jpg" alt="Logo RCS.CBS HOPE" /></span>
+          <span><strong>RCS.CBS</strong><small>HOPE · Portal Anggota</small></span>
+        </a>
+        <nav class="nav" aria-label="Navigasi utama">
+          <a href="#daftar">Daftar Anak</a>
+          <a href="#verifikasi">Cek Kartu</a>
+          <a href="#pengurus">Pengurus</a>
+        </nav>
+        <a class="topbar-cta" href="#daftar">Mulai daftar <span>↗</span></a>
+      </header>
+
+      <main id="top">
+        <section class="hero section-grid">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="live-dot"></span> Registrasi anggota anak</div>
+            <h1>Identitas yang rapi.<br /><em>Komunitas yang terhubung.</em></h1>
+            <p class="hero-lede">Portal resmi RCS.CBS HOPE untuk pendaftaran mandiri, verifikasi QR, dan kartu anggota digital yang siap dicetak.</p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#daftar">Daftarkan anak <span>→</span></a>
+              <a class="button button-ghost" href="#verifikasi">Cek kartu anggota</a>
+            </div>
+            <div class="hero-trust"><span>Data tersimpan aman</span><span class="trust-line"></span><span>Verifikasi oleh pengurus</span></div>
+          </div>
+          <div class="hero-visual" aria-label="Pratinjau kartu anggota">
+            <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+            <div class="hero-card-stack">
+              <div class="member-card hero-card">
+                <div class="card-topline"><span>RCS.CBS HOPE</span><span class="card-chip">MEMBER</span></div>
+                <div class="hero-card-body">
+                  <div class="avatar avatar-placeholder">CM</div>
+                  <div><span class="card-label">Nama anggota</span><strong>CECE MERI</strong><span class="card-id">001/RCSCBS/HOPE/2026</span></div>
+                </div>
+                <div class="card-bottom"><span>AKTIF · 2026</span><span class="mini-qr">▦</span></div>
+              </div>
+              <div class="hero-seal"><img src="assets/logo.jpg" alt="" /><span>RCS<br />HOPE</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="stats-strip">
+          <div><strong>01</strong><span>Isi form mandiri</span></div><div class="strip-arrow">→</div>
+          <div><strong>02</strong><span>Verifikasi pengurus</span></div><div class="strip-arrow">→</div>
+          <div><strong>03</strong><span>Kartu siap cetak</span></div>
+        </section>
+
+        <section class="section" id="daftar">
+          <div class="section-heading"><div><div class="kicker">01 · Pendaftaran</div><h2>Daftarkan data anak</h2></div><p>Isi data dengan lengkap. Setelah dikirim, pengurus akan memeriksa dan menerbitkan nomor registrasi.</p></div>
+          <div class="form-layout">
+            <form class="panel registration-form" id="registrationForm">
+              <div class="form-intro"><span class="step-number">A</span><div><h3>Data pendaftaran</h3><p>Semua kolom bertanda <b>*</b> wajib diisi.</p></div></div>
+              <div class="field-grid">
+                <label class="field field-wide">Nama lengkap anak <span>*</span><input name="name" required placeholder="Contoh: Raka Pratama" /></label>
+                <label class="field">Nama ayah/ibu anggota <span>*</span><input name="parent_name" required placeholder="Nama anggota Reichas" /></label>
+                <label class="field">Angkatan orang tua <span>*</span><input name="cohort_year" required type="number" min="1950" max="2100" placeholder="Contoh: 2012" /></label>
+                <label class="field">Golongan darah <span>*</span><select name="blood_type" required><option value="">Pilih golongan darah</option><option>A</option><option>B</option><option>AB</option><option>O</option><option>Tidak tahu</option></select></label>
+                <label class="field">No. WhatsApp orang tua <span>*</span><input name="parent_phone" required type="tel" placeholder="08xxxxxxxxxx" /></label>
+                <label class="field field-wide file-field">Foto anak <span>*</span><input name="photo" required type="file" accept="image/png,image/jpeg,image/webp" /><small>JPG, PNG, atau WebP · maksimal 5 MB</small></label>
+              </div>
+              <label class="consent"><input name="consent" required type="checkbox" /><span>Saya menyetujui penyimpanan data dan foto anak untuk keperluan administrasi RCS.CBS HOPE. <b>*</b></span></label>
+              <div class="form-footer"><button class="button button-primary" type="submit">Kirim data anak <span>→</span></button><span class="form-note">Data awal berstatus <b>Menunggu Verifikasi</b>.</span></div>
+              <div class="form-alert" id="registrationAlert" role="status" aria-live="polite"></div>
+            </form>
+            <aside class="side-note">
+              <div class="note-icon">✦</div><h3>Kenapa data ini dikumpulkan?</h3><p>Untuk memudahkan pendataan keluarga Reichas, penerbitan kartu anggota, dan verifikasi cepat saat kegiatan.</p>
+              <div class="privacy-line"><span class="lock">⌁</span><span><b>Privasi terjaga</b><br />Data lengkap hanya untuk pengurus berwenang.</span></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section verify-section" id="verifikasi">
+          <div class="section-heading"><div><div class="kicker">02 · Verifikasi</div><h2>Cek kartu anggota</h2></div><p>Masukkan nomor registrasi atau buka tautan dari QR code untuk melihat data dasar anggota aktif.</p></div>
+          <div class="verify-layout">
+            <form class="panel verify-form" id="verifyForm"><div class="verify-icon">⌕</div><h3>Verifikasi identitas</h3><p>Gunakan nomor seperti <b>001/RCSCBS/HOPE/2026</b>.</p><div class="search-row"><input id="verifyInput" placeholder="Masukkan nomor registrasi" /><button class="button button-dark" type="submit">Cari <span>→</span></button></div><div class="form-alert" id="verifyAlert" role="status" aria-live="polite"></div></form>
+            <div class="verification-result" id="verificationResult"><div class="empty-state"><span>⌁</span><h3>Belum ada data ditampilkan</h3><p>Hasil verifikasi akan muncul di area ini.</p></div></div>
+          </div>
+        </section>
+
+        <section class="section admin-section" id="pengurus">
+          <div class="section-heading"><div><div class="kicker">03 · Dashboard</div><h2>Area pengurus</h2></div><p>Kelola verifikasi, nomor registrasi, dan kartu anggota dari satu tempat.</p></div>
+          <div class="panel admin-panel">
+            <div id="adminLoginView"><div class="admin-login-copy"><span class="admin-badge">ADMIN</span><h3>Masuk ke dashboard pengurus</h3><p>Gunakan akun Supabase Auth yang sudah didaftarkan sebagai pengurus.</p></div><form id="adminLoginForm" class="admin-login-form"><label class="field">Email<input id="adminEmail" type="email" required placeholder="pengurus@email.com" /></label><label class="field">Password<input id="adminPassword" type="password" required placeholder="••••••••" /></label><button class="button button-primary" type="submit">Masuk dashboard <span>→</span></button><div class="form-alert" id="adminAlert" role="status" aria-live="polite"></div></form></div>
+            <div id="adminDashboardView" class="hidden"><div class="dashboard-toolbar"><div><span class="admin-badge">DASHBOARD</span><h3>Data anggota masuk</h3></div><div class="toolbar-actions"><button class="button button-ghost small" id="refreshMembers">Refresh</button><button class="button button-dark small" id="adminSignOut">Keluar</button></div></div><div class="dashboard-stats"><div><span>Total data</span><strong id="totalCount">0</strong></div><div><span>Menunggu verifikasi</span><strong id="pendingCount">0</strong></div><div><span>Aktif</span><strong id="activeCount">0</strong></div></div><div class="table-wrap"><table><thead><tr><th>Registrasi</th><th>Nama anak</th><th>Orang tua</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="membersTable"><tr><td colspan="5" class="table-empty">Belum ada data.</td></tr></tbody></table></div></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer"><div class="footer-brand"><img src="assets/logo.jpg" alt="Logo RCS.CBS HOPE" /><div><strong>RCS.CBS HOPE</strong><span>Portal Anggota · 2026</span></div></div><div class="footer-note">Dibangun untuk pendataan yang lebih rapi,<br />terhubung, dan siap bergerak.</div></footer>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
