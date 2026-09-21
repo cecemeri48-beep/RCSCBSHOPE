@@ -176,3 +176,10 @@
 
 /* QR visual cleanup v60: remove the extra wrapper box; keep only the QR quiet zone */
 .id-card-qr{background:transparent;padding:0;border-radius:0}
+
+/* Share and verification actions stay comfortable on small screens */
+.verification-actions,.modal-actions{flex-wrap:wrap}
+@media(max-width:760px){
+  .verification-actions .btn,.modal-actions .btn{flex:1 1 calc(50% - 6px);min-width:0}
+  .verification-actions .zoom-member-card,.verification-actions #toggleCardSide{flex-basis:calc(50% - 6px)}
+}

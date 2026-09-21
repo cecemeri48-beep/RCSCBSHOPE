@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v60 QR cleanup
+RCS.CBS HOPE — v61 WhatsApp validation & share
 
 Replace/upload ONLY:
 - index.html
@@ -7,6 +7,12 @@ Replace/upload ONLY:
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:
-https://rcscbshope.vercel.app/?v=60
+https://rcscbshope.vercel.app/?v=61
 
-Perubahan: kotak putih tambahan di belakang QR dihapus. QR tetap memiliki area putih bawaan/quiet zone agar tetap mudah dipindai dan posisinya presisi.
+Perubahan:
+- Validasi nomor WhatsApp aktif dengan format 08..., 62..., atau +62....
+- Nomor disimpan lebih rapi tanpa spasi/tanda hubung.
+- Tombol Bagikan Kartu pada hasil verifikasi dan preview kartu.
+- Bagikan memakai menu share HP atau membuka WhatsApp.
+- Tombol tetap rapi di layar mobile.
+- Semua perbaikan v60 sebelumnya tetap termasuk.
