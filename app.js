@@ -182,6 +182,23 @@ $('#registrationForm').addEventListener('submit', async (event) => {
   finally { button.disabled=false; button.innerHTML='Kirim data anggota <span>→</span>'; }
 });
 
+const photoInput=$('#registrationForm input[name="photo"]');
+const photoPreview=$('#photoPreview');
+const photoPreviewImage=$('#photoPreviewImage');
+const photoPreviewName=$('#photoPreviewName');
+const photoPreviewMeta=$('#photoPreviewMeta');
+const clearPhoto=$('#clearPhoto');
+function resetPhotoPreview(){ if(photoInput) photoInput.value=''; photoPreview?.classList.add('hidden'); if(photoPreviewImage) photoPreviewImage.removeAttribute('src'); }
+photoInput?.addEventListener('change',()=>{
+  const file=photoInput.files?.[0]; if(!file){resetPhotoPreview();return;}
+  if(file.size>5*1024*1024){ alertBox($('#registrationAlert'),'Foto maksimal 5 MB. Pilih foto yang lebih kecil.','error'); resetPhotoPreview(); return; }
+  if(photoPreviewImage) photoPreviewImage.src=URL.createObjectURL(file);
+  if(photoPreviewName) photoPreviewName.textContent=file.name;
+  if(photoPreviewMeta) photoPreviewMeta.textContent=`${(file.size/1024/1024).toFixed(2)} MB · siap dikirim`;
+  photoPreview?.classList.remove('hidden'); clearAlert($('#registrationAlert'));
+});
+clearPhoto?.addEventListener('click',resetPhotoPreview);
+
 function isUuid(value) { return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
 async function findMember(value) {
   const key=String(value || '').trim(); if (!key) return null;

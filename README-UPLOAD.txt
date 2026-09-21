@@ -1,18 +1,18 @@
-RCS.CBS HOPE — v56 perbaikan lintas-perangkat
+RCS.CBS HOPE — v59 mobile clean
 
-Replace/upload ONLY these files in the repository root:
+Replace/upload ONLY:
 - index.html
 - app.js
 - styles.css
 
-Do NOT replace config.js; keep the existing Supabase configuration.
-After commit, wait for Vercel to show Ready, then open:
-https://rcscbshope.vercel.app/?v=56
+Do NOT replace config.js.
+After commit and Vercel Ready, open:
+https://rcscbshope.vercel.app/?v=59
 
-Perbaikan:
-- Tetap memakai insert publik tanpa .select() (fix RLS v54).
-- Jika config Supabase gagal dimuat, aplikasi tidak lagi diam-diam menyimpan ke localStorage/demo.
-- HP lama tanpa createImageBitmap sekarang memakai kompresi foto fallback.
-- Ada fallback UUID untuk browser lama.
-- Error koneksi tampil jelas agar pengguna tahu harus memuat ulang, bukan mengira data masuk.
-- Tombol dan petunjuk grup WhatsApp tetap tersedia.
+Perubahan mobile:
+- Panel 01–03 yang berulang dan memakan tempat dihapus.
+- Form tetap dikelompokkan secara jelas: identitas, kontak, foto & persetujuan.
+- Preview foto, validasi ukuran, dan tombol ganti foto tetap tersedia.
+- Tombol kirim tetap mudah dijangkau di mobile.
+- Halaman sukses, approval WhatsApp, scan, dan download tetap dipertahankan.
+- Semua perbaikan koneksi/RLS/kompatibilitas HP sebelumnya tetap termasuk.
