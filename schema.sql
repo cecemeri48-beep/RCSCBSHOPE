@@ -96,7 +96,7 @@ create policy "admins can read admin list" on public.admin_users for select to a
 
 -- View verifikasi hanya memuat informasi dasar anggota Aktif.
 create or replace view public.member_verification as
-  select public_token, registration_number, name, parent_name, cohort_year, blood_type::text as blood_type, photo_url, status::text as status
+  select public_token, registration_number, name, parent_name, cohort_year, blood_type::text as blood_type, photo_path, photo_url, status::text as status
   from public.members where status = 'Aktif';
 grant select on public.member_verification to anon, authenticated;
 
