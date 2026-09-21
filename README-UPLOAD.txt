@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v62 blood label/order
+RCS.CBS HOPE — v63 correct blood field order
 
 Replace/upload ONLY:
 - index.html
@@ -7,11 +7,17 @@ Replace/upload ONLY:
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:
-https://rcscbshope.vercel.app/?v=62
+https://rcscbshope.vercel.app/?v=63
 
-Perubahan:
-- Golongan darah dipindahkan tepat di bawah nama anggota.
-- Label diperjelas menjadi “Golongan darah anggota”.
-- Label pada kartu dan info kartu juga diperjelas.
-- Data golongan darah orang tua tidak digunakan.
-- Semua perbaikan v61 sebelumnya tetap termasuk.
+Urutan formulir sekarang:
+01 Identitas anggota
+- Nama lengkap anggota keluarga
+- Golongan darah anggota
+
+02 Data orang tua & kontak
+- Nama orang tua anggota
+- Nama angkatan orang tua
+- WhatsApp orang tua
+- Alamat orang tua
+
+Semua perbaikan v62 dan sebelumnya tetap termasuk.
