@@ -128,10 +128,32 @@ $('#registrationForm').addEventListener('submit', async (event) => {
     button.innerHTML='Menyimpan data…';
     const payload = { name:data.get('name').trim().toUpperCase(), parent_name:data.get('parent_name').trim().toUpperCase(), cohort_name:data.get('cohort_name').trim().toUpperCase(), cohort_year:null, blood_type:data.get('blood_type'), parent_phone:data.get('parent_phone').trim(), parent_address:data.get('parent_address').trim().toUpperCase(), photo_path:photo.path, photo_url:photo.url, consent:Boolean(data.get('consent')), status:'Menunggu Verifikasi' };
     let member;
-    if (isConfigured()) { const { data: inserted, error } = await withTimeout(sb.from('members').insert(payload).select().single(), 30000, 'Penyimpanan terlalu lama. Periksa koneksi Supabase lalu coba lagi.'); if (error) throw error; member=inserted; }
+    if (isConfigured()) {
+      /*
+       * Do not chain .select() here. Public visitors are allowed to INSERT
+       * registrations, but they are intentionally not allowed to SELECT the
+       * private members table. INSERT ... RETURNING therefore gets rejected
+       * by RLS even though the INSERT policy itself is correct.
+       */
+      const { error } = await withTimeout(
+        sb.from('members').insert(payload),
+        30000,
+        'Penyimpanan terlalu lama. Periksa koneksi Supabase lalu coba lagi.'
+      );
+      if (error) throw error;
+      member={...payload, registration_number:null, public_token:null};
+    }
     else { const items=demoMembers(); member={...payload,id:crypto.randomUUID(),public_token:crypto.randomUUID(),registration_number:null}; items.push(member); saveDemo(items); }
-    activeMember=member; form.reset(); alertBox(alert, `Data berhasil dikirim. Nomor sementara: ${member.registration_number || 'menunggu verifikasi pengurus'}.`, 'success'); toast('Data anggota berhasil disimpan');
-    setTimeout(()=>{ $('#cek').scrollIntoView({behavior:'smooth'}); renderResult(member); }, 450);
+    activeMember=member; form.reset();
+    alertBox(alert, 'Data berhasil dikirim. Silakan bergabung ke grup WhatsApp dan hubungi admin agar data diperiksa dan disetujui.', 'success');
+    toast('Data anggota berhasil disimpan');
+    setTimeout(()=>{
+      $('#cek').scrollIntoView({behavior:'smooth'});
+      if (isConfigured()) {
+        const result=$('#verificationResult');
+        if (result) result.innerHTML='<div class="empty"><span>✓</span><strong>Data sudah diterima</strong><small>Nomor registrasi akan diisi pengurus setelah verifikasi. Simpan nomor tersebut untuk membuka kartu.</small></div>';
+      } else renderResult(member);
+    }, 450);
   } catch (error) { console.error(error); alertBox(alert, error.message || 'Data belum tersimpan. Coba lagi.', 'error'); }
   finally { button.disabled=false; button.innerHTML='Kirim data anggota <span>→</span>'; }
 });

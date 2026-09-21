@@ -118,3 +118,12 @@
 @media(max-width:390px){.verification-id-card .id-card-qr,.id-card-preview .id-card-qr{right:36px}.verification-id-card .id-card-bottom,.id-card-preview .id-card-bottom{right:30px}}
 
 .similar-badge{display:inline-flex;margin-top:5px;padding:3px 6px;border-radius:999px;background:#fff1dc;color:#9a6b2d;font-size:8px;font-weight:800;letter-spacing:.02em}
+
+.btn-whatsapp{background:#1f8f62;color:#fff;box-shadow:0 8px 18px rgba(31,143,98,.18)}
+.btn-whatsapp:hover{background:#18764f}
+.btn-small{min-height:38px;padding:0 13px;font-size:11px}
+.community-join-note{display:flex;align-items:flex-start;gap:12px;margin-top:16px;padding:14px 15px;background:#eef7f2;border:1px solid #cfe7d9;border-radius:13px;color:#315d4c}
+.community-join-icon{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:9px;background:#d7efe2;color:#1f8f62;font-weight:800}
+.community-join-note strong{display:block;color:var(--ink);font-size:13px;margin-bottom:3px}
+.community-join-note p{margin:0 0 10px;color:#5f716b;font-size:11px;line-height:1.55}
+@media(max-width:760px){.community-join-note{padding:13px}.community-join-note .btn{width:100%}}
