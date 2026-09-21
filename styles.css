@@ -113,3 +113,6 @@
 }
 
 .verification-actions .zoom-member-card,.verification-actions #toggleCardSide{flex-basis:100%}
+
+@media(max-width:760px){.verification-id-card .id-card-qr,.id-card-preview .id-card-qr{right:42px}.verification-id-card .id-card-bottom,.id-card-preview .id-card-bottom{right:35px}}
+@media(max-width:390px){.verification-id-card .id-card-qr,.id-card-preview .id-card-qr{right:36px}.verification-id-card .id-card-bottom,.id-card-preview .id-card-bottom{right:30px}}
