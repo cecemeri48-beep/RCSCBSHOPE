@@ -213,3 +213,29 @@
   .verification-id-card .id-card-qr,.id-card-preview .id-card-qr{right:14px!important;width:56px!important;height:56px!important}
   .verification-id-card .id-card-bottom,.id-card-preview .id-card-bottom{right:14px!important;width:78px!important;max-width:78px!important;font-size:5px!important}
 }
+
+/* Admin edit member modal v76 */
+.edit-member-modal{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:18px}
+.edit-member-modal.hidden{display:none}
+.edit-member-backdrop{position:absolute;inset:0;background:rgba(8,18,22,.72);backdrop-filter:blur(8px)}
+.edit-member-dialog{position:relative;z-index:1;width:min(720px,100%);max-height:calc(100vh - 36px);overflow:auto;background:var(--paper);border:1px solid rgba(255,255,255,.55);border-radius:22px;padding:25px;box-shadow:0 25px 80px rgba(0,0,0,.3)}
+.edit-member-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}
+.edit-member-head h3{font-size:28px;margin:7px 0 4px}
+.edit-member-head p{margin:0;color:var(--muted);font-size:12px}
+.edit-close{width:34px;height:34px;flex:none;border:0;border-radius:50%;background:#e7eeeb;color:var(--ink);font-size:24px;line-height:1;cursor:pointer}
+.edit-member-form{padding:0}
+.edit-member-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.edit-member-grid .wide{grid-column:1/-1}
+.edit-member-grid .field input,.edit-member-grid .field select,.edit-member-grid .field textarea{background:#fff}
+.edit-photo-preview{display:block;width:70px;height:70px;margin-top:9px;border-radius:10px;object-fit:cover;border:2px solid #d9e4df;background:#e9efec}
+.edit-member-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.edit-member-actions .btn{min-width:140px}
+@media(max-width:760px){
+  .edit-member-modal{padding:10px}
+  .edit-member-dialog{max-height:calc(100vh - 20px);padding:18px;border-radius:18px}
+  .edit-member-head h3{font-size:23px}
+  .edit-member-grid{grid-template-columns:1fr;gap:12px}
+  .edit-member-grid .wide{grid-column:auto}
+  .edit-member-actions{position:sticky;bottom:-18px;margin:16px -18px -18px;padding:12px 18px;background:rgba(247,248,246,.95);backdrop-filter:blur(8px)}
+  .edit-member-actions .btn{flex:1;min-width:0}
+}

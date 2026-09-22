@@ -211,32 +211,44 @@ photoInput?.addEventListener('change',()=>{
 clearPhoto?.addEventListener('click',resetPhotoPreview);
 
 function isUuid(value) { return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
-function trailingVerificationCode(value='') { const parts=String(value).trim().split(/[·•|]/).map(part=>part.trim()).filter(Boolean); return (parts.at(-1) || String(value).trim()).replace(/[^a-z0-9]/gi,'').toUpperCase(); }
+function normalizeVerificationInput(value='') {
+  let raw=String(value || '').trim();
+  try { raw=decodeURIComponent(raw); } catch (_) {}
+  try {
+    const url=new URL(raw);
+    if(url.hash.startsWith('#verify=')) return decodeURIComponent(url.hash.slice(8)).trim();
+    if(url.searchParams.get('registration')) return url.searchParams.get('registration').trim();
+  } catch (_) {}
+  if(raw.startsWith('#verify=')) return raw.slice(8).trim();
+  return raw;
+}
+function trailingVerificationCode(value='') { const raw=normalizeVerificationInput(value); const parts=raw.split(/[·•|]/).map(part=>part.trim()).filter(Boolean); return (parts.at(-1) || raw).replace(/[^a-z0-9]/gi,'').toUpperCase(); }
 async function findMember(value) {
-  const key=String(value || '').trim(); if (!key) return null;
+  const key=normalizeVerificationInput(value); if (!key) return null;
   const registrationKey=key.toUpperCase(); const trailingCode=trailingVerificationCode(key);
   if (isConfigured()) {
-    const byRegistration=await sb.from('member_verification').select('*').eq('registration_number',registrationKey).maybeSingle();
+    const byRegistration=await sb.from('member_verification').select('*').eq('registration_number',registrationKey).limit(1).maybeSingle();
     if (byRegistration.error) throw byRegistration.error;
     if (byRegistration.data) return byRegistration.data;
     if (isUuid(key)) {
-      const byToken=await sb.from('member_verification').select('*').eq('public_token',key).maybeSingle();
+      const byToken=await sb.from('member_verification').select('*').eq('public_token',key).limit(1).maybeSingle();
       if (byToken.error) throw byToken.error;
       if (byToken.data) return byToken.data;
     }
     if (/^[A-Z0-9]{6,12}$/.test(trailingCode)) {
-      const byTrailingCode=await sb.from('member_verification').select('*').ilike('registration_number',`%${trailingCode}`).maybeSingle();
+      const byTrailingCode=await sb.from('member_verification').select('*').ilike('registration_number',`%${trailingCode}`).limit(1).maybeSingle();
       if (byTrailingCode.error) throw byTrailingCode.error;
       return byTrailingCode.data || null;
     }
     return null;
   }
-  return demoMembers().find(m=>m.registration_number?.toLowerCase()===key.toLowerCase() || trailingVerificationCode(m.registration_number)===trailingCode || m.public_token===key) || null;
+  const normalizedKey=key.replace(/\s+/g,'').toLowerCase();
+  return demoMembers().find(m=>String(m.registration_number||'').replace(/\s+/g,'').toLowerCase()===normalizedKey || trailingVerificationCode(m.registration_number)===trailingCode || m.public_token===key) || null;
 }
-$('#verifyForm').addEventListener('submit', async (event)=>{event.preventDefault();const alert=$('#verifyAlert');clearAlert(alert);try{const member=await findMember($('#verifyInput').value);if(!member) {renderResult(null);alertBox(alert,'Data tidak ditemukan. Periksa kembali nomor registrasi.','error');} else {renderResult(member);alertBox(alert,'Data anggota ditemukan.','success');}}catch(e){alertBox(alert,e.message||'Verifikasi gagal.','error')}});
+$('#verifyForm').addEventListener('submit', async (event)=>{event.preventDefault();const alert=$('#verifyAlert');clearAlert(alert);try{const member=await findMember($('#verifyInput').value);if(!member) {renderResult(null);alertBox(alert,'Data tidak ditemukan atau kartu belum aktif. Pastikan kode benar dan sudah disetujui pengurus.','error');} else {renderResult(member);alertBox(alert,'Data anggota ditemukan.','success');}}catch(e){alertBox(alert,e.message||'Verifikasi gagal.','error')}});
 
 let scanStream=null; let scanTimer=null;
-function normalizeScanValue(raw) { try { const url=new URL(raw); if (url.hash.startsWith('#verify=')) return decodeURIComponent(url.hash.slice(8)); if (url.searchParams.get('registration')) return url.searchParams.get('registration'); } catch (_) {} return raw; }
+function normalizeScanValue(raw) { return normalizeVerificationInput(raw); }
 function stopScanner() { if (scanTimer) { clearInterval(scanTimer); scanTimer=null; } if (scanStream) { scanStream.getTracks().forEach(track=>track.stop()); scanStream=null; } const video=$('#scannerVideo'); if (video) video.srcObject=null; $('#scanPanel')?.classList.add('hidden'); }
 async function startScanner() {
   const panel=$('#scanPanel'); const video=$('#scannerVideo'); const alert=$('#scanAlert'); panel.classList.remove('hidden'); clearAlert(alert);
@@ -259,11 +271,12 @@ function renderAdminRows(){
   const filtered=items.filter(m=>{const hay=[m.registration_number,m.name,m.parent_name,m.cohort_name,m.parent_phone,m.parent_address].filter(Boolean).join(' ').toLowerCase();return (!search||hay.includes(search))&&(!status||m.status===status);});
   const tbody=$('#membersTable'); if(!filtered.length){tbody.innerHTML=`<tr><td colspan="8" class="table-empty">${items.length?'Tidak ada data yang cocok.':'Belum ada data.'}</td></tr>`;return;}
   const option=(m,value,label)=>`<option ${m.status===value?'selected':''}>${label}</option>`;
-  tbody.innerHTML=filtered.map(m=>`<tr><td>${adminPhotoMarkup(m)}</td><td><div class="registration-edit"><input class="registration-input" data-id="${safe(m.id)}" value="${safe(m.registration_number||'')}" placeholder="001 (nomor urut)" /><button class="btn btn-outline small save-registration" data-id="${safe(m.id)}" type="button">Simpan</button><button class="btn btn-outline small generate-registration" data-id="${safe(m.id)}" type="button">Generate ID</button></div></td><td><b>${safe(m.name)}</b><small class="table-subtext">${safe(m.cohort_name||'Angkatan belum diisi')}</small></td><td>${safe(m.parent_name)}</td><td>${safe(m.parent_phone||'—')}</td><td title="${safe(m.parent_address||'—')}">${safe(m.parent_address||'—')}</td><td><div class="status-control"><span class="status-chip status-${statusClass(m.status)}">${safe(m.status||'—')}</span><select class="status-select" data-id="${safe(m.id)}">${option(m,'Menunggu Verifikasi','Menunggu Verifikasi')}${option(m,'Perlu Perbaikan','Perlu Perbaikan')}${option(m,'Aktif','Aktif')}${option(m,'Nonaktif','Nonaktif')}</select></div></td><td><div class="table-actions"><button class="btn btn-outline small view-member" data-id="${safe(m.id)}" type="button">Lihat</button><button class="btn btn-danger small delete-member" data-id="${safe(m.id)}" type="button">Hapus</button></div></td></tr>`).join('');
+  tbody.innerHTML=filtered.map(m=>`<tr><td>${adminPhotoMarkup(m)}</td><td><div class="registration-edit"><input class="registration-input" data-id="${safe(m.id)}" value="${safe(m.registration_number||'')}" placeholder="001 (nomor urut)" /><button class="btn btn-outline small save-registration" data-id="${safe(m.id)}" type="button">Simpan</button><button class="btn btn-outline small generate-registration" data-id="${safe(m.id)}" type="button">Generate ID</button></div></td><td><b>${safe(m.name)}</b><small class="table-subtext">${safe(m.cohort_name||'Angkatan belum diisi')}</small></td><td>${safe(m.parent_name)}</td><td>${safe(m.parent_phone||'—')}</td><td title="${safe(m.parent_address||'—')}">${safe(m.parent_address||'—')}</td><td><div class="status-control"><span class="status-chip status-${statusClass(m.status)}">${safe(m.status||'—')}</span><select class="status-select" data-id="${safe(m.id)}">${option(m,'Menunggu Verifikasi','Menunggu Verifikasi')}${option(m,'Perlu Perbaikan','Perlu Perbaikan')}${option(m,'Aktif','Aktif')}${option(m,'Nonaktif','Nonaktif')}</select></div></td><td><div class="table-actions"><button class="btn btn-outline small edit-member" data-id="${safe(m.id)}" type="button">Edit</button><button class="btn btn-outline small view-member" data-id="${safe(m.id)}" type="button">Lihat</button><button class="btn btn-danger small delete-member" data-id="${safe(m.id)}" type="button">Hapus</button></div></td></tr>`).join('');
   $$('.registration-input',tbody).forEach(el=>el.addEventListener('input',()=>{el.value=el.value.toUpperCase();}));
   $$('.save-registration',tbody).forEach(el=>el.addEventListener('click',()=>{const input=tbody.querySelector(`.registration-input[data-id="${el.dataset.id}"]`);updateRegistrationNumber(el.dataset.id,input?.value||'');}));$$('.generate-registration',tbody).forEach(el=>el.addEventListener('click',()=>{const input=tbody.querySelector(`.registration-input[data-id="${el.dataset.id}"]`);const generated=generateMemberId(input?.value||'');if(!generated)return;if(input)input.value=generated;updateRegistrationNumber(el.dataset.id,generated);}));
   $$('.status-select',tbody).forEach(el=>el.addEventListener('change',()=>updateStatus(el.dataset.id,el.value)));
   $$('.view-member',tbody).forEach(el=>el.addEventListener('click',()=>{const m=adminMembers.find(x=>x.id===el.dataset.id);openCardPreview(m);}));
+  $$('.edit-member',tbody).forEach(el=>el.addEventListener('click',()=>{const m=adminMembers.find(x=>x.id===el.dataset.id);openEditMember(m);}));
   $$('.delete-member',tbody).forEach(el=>el.addEventListener('click',()=>deleteMember(el.dataset.id)));
 }
 async function loadMembers() {
@@ -271,6 +284,38 @@ async function loadMembers() {
   $('#totalCount').textContent=items.length; $('#pendingCount').textContent=items.filter(x=>x.status==='Menunggu Verifikasi').length; $('#activeCount').textContent=items.filter(x=>x.status==='Aktif').length; $('#unassignedCount').textContent=items.filter(x=>!x.registration_number).length;
   renderAdminRows();
 }
+let editingMemberId = null;
+function closeEditMember(){const modal=$('#editMemberModal');if(!modal)return;modal.classList.add('hidden');modal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open');editingMemberId=null;}
+function openEditMember(member){
+  if(!member)return;
+  const modal=$('#editMemberModal'); const form=$('#editMemberForm'); if(!modal||!form)return;
+  editingMemberId=member.id; form.reset();
+  $('#editMemberId').value=member.id;
+  $('#editName').value=member.name||''; $('#editParentName').value=member.parent_name||''; $('#editCohortName').value=member.cohort_name||'';
+  $('#editBloodType').value=member.blood_type||''; $('#editParentPhone').value=member.parent_phone||''; $('#editParentAddress').value=member.parent_address||'';
+  $('#editMemberTitle').textContent=`Edit data — ${member.name||'anggota'}`;
+  const preview=$('#editPhotoPreview'); if(preview){const src=photoUrlForMember(member);preview.src=src||'';preview.classList.toggle('hidden',!src);}
+  clearAlert($('#editMemberAlert')); modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open'); setTimeout(()=>$('#editName')?.focus(),50);
+}
+async function saveMemberEdit(event){
+  event.preventDefault(); const form=event.currentTarget; const alert=$('#editMemberAlert'); clearAlert(alert);
+  const name=$('#editName').value.trim().toUpperCase(); const parent_name=$('#editParentName').value.trim().toUpperCase(); const cohort_name=$('#editCohortName').value.trim().toUpperCase(); const blood_type=$('#editBloodType').value; const parent_phone=normalizePhone($('#editParentPhone').value); const parent_address=$('#editParentAddress').value.trim().toUpperCase(); const file=form.elements.edit_photo?.files?.[0];
+  if(!name||!parent_name||!cohort_name||!blood_type||!parent_phone||!parent_address){alertBox(alert,'Lengkapi semua data wajib terlebih dahulu.','error');return;}
+  if(!validPhone(parent_phone)){alertBox(alert,'Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau 628xxxxxxxxxx.','error');return;}
+  const button=form.querySelector('button[type=submit]'); button.disabled=true; button.textContent='Menyimpan…';
+  try{
+    const payload={name,parent_name,cohort_name,cohort_year:null,blood_type,parent_phone,parent_address};
+    if(file){const photo=await uploadPhoto(file);payload.photo_path=photo.path;payload.photo_url=photo.url;}
+    if(isConfigured()){
+      const {error}=await withTimeout(sb.from('members').update(payload).eq('id',editingMemberId),30000,'Penyimpanan terlalu lama. Periksa koneksi Supabase lalu coba lagi.'); if(error)throw error;
+    } else {saveDemo(demoMembers().map(m=>m.id===editingMemberId?{...m,...payload}:m));}
+    closeEditMember(); toast('Data anggota berhasil diperbarui'); await loadMembers();
+  }catch(error){alertBox(alert,error.message||'Data gagal diperbarui.','error');}
+  finally{button.disabled=false;button.textContent='Simpan perubahan';}
+}
+$('#editMemberForm')?.addEventListener('submit',saveMemberEdit); $('#closeEditMember')?.addEventListener('click',closeEditMember); $('[data-close-edit]')?.addEventListener('click',closeEditMember); document.addEventListener('keydown',event=>{if(event.key==='Escape')closeEditMember();});
+const editPhotoInput=$('#editMemberForm input[name="edit_photo"]'); editPhotoInput?.addEventListener('change',()=>{const file=editPhotoInput.files?.[0];const preview=$('#editPhotoPreview');if(!preview)return;if(file){preview.src=URL.createObjectURL(file);preview.classList.remove('hidden');}else preview.classList.add('hidden');});
+
 async function deleteMember(id) {
   if (!window.confirm('Hapus data anggota ini? Tindakan ini tidak dapat dibatalkan.')) return;
   try {
