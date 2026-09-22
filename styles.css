@@ -273,3 +273,15 @@
 /* Forest house background v88 */
 .back-house-img{right:-42px;bottom:-78px;width:475px;height:455px;object-fit:cover;border-radius:0;mix-blend-mode:multiply;opacity:.18;filter:grayscale(1) contrast(.78);z-index:0}
 @media(max-width:760px){.back-house-img{right:-28px;bottom:-34px;width:285px;height:270px;opacity:.14}}
+
+
+/* Split back card: color panel + forest image panel v89 */
+.id-card-back{background:linear-gradient(90deg,#eee1d6 0%,#f7f8f6 52%,#e9e2d7 52%,#e9e2d7 100%)}
+.back-house-img{right:0;top:0;bottom:0;width:48%;height:100%;object-fit:cover;border-radius:0;mix-blend-mode:normal;opacity:.86;filter:saturate(.78) contrast(.92);z-index:0}
+.back-copy{max-width:50%;z-index:3}.back-detail{right:52%;display:flex;flex-direction:column;align-items:flex-start;gap:9px;z-index:3}.back-compass-img{right:34px;top:48px;width:180px;height:180px;opacity:.36;z-index:2;mix-blend-mode:multiply}
+@media(max-width:760px){.id-card-back{background:linear-gradient(90deg,#eee1d6 0%,#f7f8f6 58%,#e9e2d7 58%,#e9e2d7 100%)}.back-house-img{right:0;width:44%;height:100%;opacity:.72}.back-copy{max-width:57%}.back-detail{right:45%;gap:5px}.back-compass-img{right:5px;top:34px;width:112px;height:112px;opacity:.34}.back-copy strong{font-size:14px}.back-copy p{font-size:9px}}
+
+
+/* Elegant grayscale forest panel v90 */
+.back-house-img{opacity:.22;filter:grayscale(1) contrast(.78) brightness(1.08);mix-blend-mode:multiply}
+@media(max-width:760px){.back-house-img{opacity:.16}}
