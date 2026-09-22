@@ -261,3 +261,10 @@
 .back-house-img{position:absolute;z-index:0;right:-28px;bottom:-48px;width:430px;height:405px;object-fit:contain;mix-blend-mode:multiply;opacity:.22;filter:grayscale(1) contrast(.82);pointer-events:none}
 .id-card-back .back-copy,.id-card-back .back-detail{z-index:2}
 @media(max-width:760px){.back-house-img{right:-30px;bottom:-30px;width:260px;height:250px;opacity:.18}.back-copy{max-width:75%}.back-copy strong,.back-copy p{position:relative;z-index:2}}
+
+
+/* Compass + house overlay and admin arrival order v86 */
+.back-compass-img{position:absolute;z-index:1;right:38px;top:52px;bottom:auto;width:215px;height:215px;object-fit:contain;border-radius:50%;mix-blend-mode:multiply;opacity:.30;filter:grayscale(1) contrast(.9);pointer-events:none}
+.back-house-img{z-index:0}
+.entry-order{display:block;color:var(--red);font-size:18px;font-weight:800;letter-spacing:.06em;line-height:1.1}.entry-order-label{display:block;margin-top:3px;color:#899594;font-size:8px;white-space:nowrap}
+@media(max-width:760px){.back-compass-img{right:12px;top:24px;width:130px;height:130px;opacity:.26}.entry-order{font-size:16px}}
