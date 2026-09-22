@@ -241,16 +241,17 @@
 }
 
 
-/* Pending member card: show the card immediately, without a misleading QR */
+/* Final card polish v80 */
+.id-card-badge.status-pending{border-color:rgba(240,200,146,.75);color:#f4d49f;background:rgba(154,107,45,.18)}
+.id-card-badge.status-active{border-color:rgba(176,226,196,.75);color:#c7f0d5;background:rgba(40,115,84,.2)}
+.id-card-badge.status-fix{border-color:rgba(240,169,149,.8);color:#ffd1c4;background:rgba(154,75,46,.22)}
+.id-card-badge.status-inactive{border-color:rgba(215,224,222,.65);color:#d7e0de;background:rgba(104,118,117,.2)}
 .qr-pending{display:grid;place-items:center;width:100%;height:100%;padding:5px;text-align:center;color:rgba(255,255,255,.72);font-size:6px;line-height:1.35;font-weight:800;letter-spacing:.08em}
+@media(max-width:760px){
+  .verification-id-card .id-card-name,.id-card-preview .id-card-name{font-size:clamp(14px,4.8vw,21px)!important;line-height:1.08!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+  .verification-id-card .id-card-badge,.id-card-preview .id-card-badge{max-width:138px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+}
 
 
-/* Clear post-registration handoff */
-.registration-success{display:flex;align-items:flex-start;gap:12px;margin-top:12px;padding:14px 15px;background:#e8f1ec;border:1px solid #cbe2d5;border-radius:13px;color:#275e4c}
-.registration-success.hidden{display:none}
-.registration-success-icon{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:50%;background:#276952;color:#fff;font-weight:800}
-.registration-success-copy strong{display:block;color:var(--ink);font-size:14px;margin-bottom:3px}
-.registration-success-copy p{margin:0;color:#4d7163;font-size:11px;line-height:1.55}
-.registration-success-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
-.registration-success-actions .btn{min-height:36px}
-@media(max-width:760px){.registration-success-actions{flex-direction:column}.registration-success-actions .btn{width:100%}}
+/* Critical UX fix v81: clear success handoff after registration */
+.registration-success{display:flex;align-items:flex-start;gap:12px;margin-top:12px;padding:14px 15px;background:#e8f1ec;border:1px solid #cbe2d5;border-radius:13px;color:#275e4c}.registration-success.hidden{display:none}.registration-success-icon{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:50%;background:#276952;color:#fff;font-weight:800}.registration-success-copy strong{display:block;color:var(--ink);font-size:14px;margin-bottom:3px}.registration-success-copy p{margin:0;color:#4d7163;font-size:11px;line-height:1.55}.registration-success-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}.registration-success-actions .btn{min-height:36px}@media(max-width:760px){.registration-success-actions{flex-direction:column}.registration-success-actions .btn{width:100%}}
