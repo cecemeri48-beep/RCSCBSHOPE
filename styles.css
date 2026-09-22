@@ -285,3 +285,6 @@
 /* Elegant grayscale forest panel v90 */
 .back-house-img{opacity:.22;filter:grayscale(1) contrast(.78) brightness(1.08);mix-blend-mode:multiply}
 @media(max-width:760px){.back-house-img{opacity:.16}}
+
+.back-card-number strong{font-size:8px!important;letter-spacing:.02em!important;white-space:nowrap}
+@media(max-width:760px){.back-card-number strong{font-size:6.5px!important;letter-spacing:0!important}}
