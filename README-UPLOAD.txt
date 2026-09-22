@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v70 cohort suffix display
+RCS.CBS HOPE — v71 trailing verification code
 
 Replace/upload ONLY:
 - index.html
@@ -7,11 +7,14 @@ Replace/upload ONLY:
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:
-https://rcscbshope.vercel.app/?v=70
+https://rcscbshope.vercel.app/?v=71
 
-Logic tampilan kartu:
-- Input: ANGKATAN CADAS -> CADAS
-- Input: GENERASI RIMBA -> RIMBA
-- Input: CADAS -> CADAS
+Verifikasi sekarang bisa dilakukan hanya dengan memasukkan kode paling belakang kartu.
+Contoh kartu:
+RCS.CBS · ١٩٩٤ · I · K7M4Q9
 
-Kata ANGKATAN/GENERASI/SERIES hanya dibuang saat ditampilkan. Data asli di database tetap utuh.
+Anggota cukup mengetik:
+K7M4Q9
+
+Sistem mencari kode tersebut pada kartu aktif dan menampilkan nama anggota, pemilik legacy, nama angkatan, No. ID, dan status.
+QR tetap bisa digunakan.

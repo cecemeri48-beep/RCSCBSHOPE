@@ -211,9 +211,10 @@ photoInput?.addEventListener('change',()=>{
 clearPhoto?.addEventListener('click',resetPhotoPreview);
 
 function isUuid(value) { return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
+function trailingVerificationCode(value='') { const parts=String(value).trim().split(/[·•|]/).map(part=>part.trim()).filter(Boolean); return (parts.at(-1) || String(value).trim()).replace(/[^a-z0-9]/gi,'').toUpperCase(); }
 async function findMember(value) {
   const key=String(value || '').trim(); if (!key) return null;
-  const registrationKey=key.toUpperCase();
+  const registrationKey=key.toUpperCase(); const trailingCode=trailingVerificationCode(key);
   if (isConfigured()) {
     const byRegistration=await sb.from('member_verification').select('*').eq('registration_number',registrationKey).maybeSingle();
     if (byRegistration.error) throw byRegistration.error;
@@ -221,11 +222,16 @@ async function findMember(value) {
     if (isUuid(key)) {
       const byToken=await sb.from('member_verification').select('*').eq('public_token',key).maybeSingle();
       if (byToken.error) throw byToken.error;
-      return byToken.data || null;
+      if (byToken.data) return byToken.data;
+    }
+    if (/^[A-Z0-9]{6,12}$/.test(trailingCode)) {
+      const byTrailingCode=await sb.from('member_verification').select('*').ilike('registration_number',`%${trailingCode}`).maybeSingle();
+      if (byTrailingCode.error) throw byTrailingCode.error;
+      return byTrailingCode.data || null;
     }
     return null;
   }
-  return demoMembers().find(m=>m.registration_number?.toLowerCase()===key.toLowerCase() || m.public_token===key) || null;
+  return demoMembers().find(m=>m.registration_number?.toLowerCase()===key.toLowerCase() || trailingVerificationCode(m.registration_number)===trailingCode || m.public_token===key) || null;
 }
 $('#verifyForm').addEventListener('submit', async (event)=>{event.preventDefault();const alert=$('#verifyAlert');clearAlert(alert);try{const member=await findMember($('#verifyInput').value);if(!member) {renderResult(null);alertBox(alert,'Data tidak ditemukan. Periksa kembali nomor registrasi.','error');} else {renderResult(member);alertBox(alert,'Data anggota ditemukan.','success');}}catch(e){alertBox(alert,e.message||'Verifikasi gagal.','error')}});
 
