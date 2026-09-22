@@ -153,7 +153,7 @@ async function openPrintCard(member, mode='pdf') {
 }
 $('#registrationForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  const form = event.currentTarget; const alert = $('#registrationAlert'); clearAlert(alert);
+  const form = event.currentTarget; const alert = $('#registrationAlert'); const successPanel=$('#registrationSuccess'); clearAlert(alert); successPanel?.classList.add('hidden');
   const data = new FormData(form); const file = data.get('photo');
   if (!validPhone(data.get('parent_phone'))) { alertBox(alert, 'Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau 628xxxxxxxxxx.', 'error'); return; }
   const button = form.querySelector('button[type=submit]'); button.disabled = true; button.innerHTML='Mengunggah foto…';
@@ -183,12 +183,15 @@ $('#registrationForm').addEventListener('submit', async (event) => {
     alertBox(alert, 'Data berhasil dikirim. Silakan bergabung ke grup WhatsApp dan hubungi admin agar data diperiksa dan disetujui.', 'success');
     toast('Data anggota berhasil disimpan');
     setTimeout(()=>{
+      successPanel?.classList.remove('hidden');
       $('#cek').scrollIntoView({behavior:'smooth'});
       renderResult(member);
     }, 450);
-  } catch (error) { console.error(error); alertBox(alert, error.message || 'Data belum tersimpan. Coba lagi.', 'error'); }
+  } catch (error) { console.error(error); successPanel?.classList.add('hidden'); alertBox(alert, error.message || 'Data belum tersimpan. Coba lagi.', 'error'); }
   finally { button.disabled=false; button.innerHTML='Kirim data anggota <span>→</span>'; }
 });
+
+$('#successViewCard')?.addEventListener('click',()=>$('#cek')?.scrollIntoView({behavior:'smooth'}));
 
 const photoInput=$('#registrationForm input[name="photo"]');
 const photoPreview=$('#photoPreview');

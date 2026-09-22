@@ -243,3 +243,14 @@
 
 /* Pending member card: show the card immediately, without a misleading QR */
 .qr-pending{display:grid;place-items:center;width:100%;height:100%;padding:5px;text-align:center;color:rgba(255,255,255,.72);font-size:6px;line-height:1.35;font-weight:800;letter-spacing:.08em}
+
+
+/* Clear post-registration handoff */
+.registration-success{display:flex;align-items:flex-start;gap:12px;margin-top:12px;padding:14px 15px;background:#e8f1ec;border:1px solid #cbe2d5;border-radius:13px;color:#275e4c}
+.registration-success.hidden{display:none}
+.registration-success-icon{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:50%;background:#276952;color:#fff;font-weight:800}
+.registration-success-copy strong{display:block;color:var(--ink);font-size:14px;margin-bottom:3px}
+.registration-success-copy p{margin:0;color:#4d7163;font-size:11px;line-height:1.55}
+.registration-success-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+.registration-success-actions .btn{min-height:36px}
+@media(max-width:760px){.registration-success-actions{flex-direction:column}.registration-success-actions .btn{width:100%}}
