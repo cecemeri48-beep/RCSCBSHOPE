@@ -185,3 +185,5 @@
 }
 
 .benefit-list{margin:9px 0 0;padding-left:17px;color:#776d68;font-size:11px;line-height:1.65}.benefit-list li::marker{color:var(--red)}
+
+.registration-edit{display:flex;flex-wrap:wrap;gap:5px;min-width:250px}.registration-edit .registration-input{flex:1 1 150px;min-width:140px}.generate-registration{border-color:#c9ded5;color:#276952}

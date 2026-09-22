@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v65 manfaat kartu
+RCS.CBS HOPE — v70 cohort suffix display
 
 Replace/upload ONLY:
 - index.html
@@ -7,9 +7,11 @@ Replace/upload ONLY:
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:
-https://rcscbshope.vercel.app/?v=65
+https://rcscbshope.vercel.app/?v=70
 
-Manfaat kartu yang ditambahkan:
-- Identitas anggota digital
-- Memudahkan komunikasi dan koordinasi
-- Akses BIVAK RCS.CBS sesuai ketentuan pengurus
+Logic tampilan kartu:
+- Input: ANGKATAN CADAS -> CADAS
+- Input: GENERASI RIMBA -> RIMBA
+- Input: CADAS -> CADAS
+
+Kata ANGKATAN/GENERASI/SERIES hanya dibuang saat ditampilkan. Data asli di database tetap utuh.
