@@ -268,3 +268,8 @@
 .back-house-img{z-index:0}
 .entry-order{display:block;color:var(--red);font-size:18px;font-weight:800;letter-spacing:.06em;line-height:1.1}.entry-order-label{display:block;margin-top:3px;color:#899594;font-size:8px;white-space:nowrap}
 @media(max-width:760px){.back-compass-img{right:12px;top:24px;width:130px;height:130px;opacity:.26}.entry-order{font-size:16px}}
+
+
+/* Forest house background v88 */
+.back-house-img{right:-42px;bottom:-78px;width:475px;height:455px;object-fit:cover;border-radius:0;mix-blend-mode:multiply;opacity:.18;filter:grayscale(1) contrast(.78);z-index:0}
+@media(max-width:760px){.back-house-img{right:-28px;bottom:-34px;width:285px;height:270px;opacity:.14}}
