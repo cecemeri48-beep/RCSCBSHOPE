@@ -194,7 +194,18 @@
   .verification-id-card .id-card-main>div:last-child,.id-card-preview .id-card-main>div:last-child{min-width:0!important;max-width:100%!important;overflow:hidden!important}
   .verification-id-card .id-card-qr,.id-card-preview .id-card-qr{right:18px!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;width:64px!important;height:64px!important;padding:0!important;border-radius:0!important;box-shadow:none!important}
   .verification-id-card .id-card-bottom,.id-card-preview .id-card-bottom{right:18px!important;bottom:12px!important;width:86px!important;max-width:86px!important;font-size:5.5px!important;line-height:1.2!important}
-  .verification-id-card .id-card-name,.id-card-preview .id-card-name{font-size:clamp(16px,5.2vw,23px)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Keep long member names readable in both the result card and preview.
+     Wrapping is intentional: never hide a member's full name behind "…". */
+  .verification-id-card .id-card-name,.id-card-preview .id-card-name{
+    max-width:100%!important;
+    font-size:clamp(14px,4.8vw,21px)!important;
+    line-height:1.08!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    overflow-wrap:anywhere!important;
+    word-break:break-word!important
+  }
   .verification-id-card .id-card-reg,.id-card-preview .id-card-reg{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
 @media(max-width:390px){
