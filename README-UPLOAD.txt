@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v71 trailing verification code
+RCS.CBS HOPE — v73 unified mobile card
 
 Replace/upload ONLY:
 - index.html
@@ -7,14 +7,11 @@ Replace/upload ONLY:
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:
-https://rcscbshope.vercel.app/?v=71
+https://rcscbshope.vercel.app/?v=73
 
-Verifikasi sekarang bisa dilakukan hanya dengan memasukkan kode paling belakang kartu.
-Contoh kartu:
-RCS.CBS · ١٩٩٤ · I · K7M4Q9
-
-Anggota cukup mengetik:
-K7M4Q9
-
-Sistem mencari kode tersebut pada kartu aktif dan menampilkan nama anggota, pemilik legacy, nama angkatan, No. ID, dan status.
-QR tetap bisa digunakan.
+Perbaikan:
+- Posisi QR pada hasil cek dan pratinjau dibuat sama.
+- QR tidak menempel ke tepi kartu.
+- Nama, nomor, QR, dan informasi bawah memakai area yang konsisten.
+- Tampilan cek/pratinjau disamakan dengan proporsi kartu PNG/PDF.
+- Perbaikan CSV v72 tetap termasuk.
