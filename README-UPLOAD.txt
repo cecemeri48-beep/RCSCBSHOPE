@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v63 correct blood field order
+RCS.CBS HOPE — v64 blood card format
 
 Replace/upload ONLY:
 - index.html
@@ -7,17 +7,9 @@ Replace/upload ONLY:
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:
-https://rcscbshope.vercel.app/?v=63
+https://rcscbshope.vercel.app/?v=64
 
-Urutan formulir sekarang:
-01 Identitas anggota
-- Nama lengkap anggota keluarga
-- Golongan darah anggota
-
-02 Data orang tua & kontak
-- Nama orang tua anggota
-- Nama angkatan orang tua
-- WhatsApp orang tua
-- Alamat orang tua
-
-Semua perbaikan v62 dan sebelumnya tetap termasuk.
+Perubahan pada kartu:
+- Label kartu menjadi “GOL. DARAH”.
+- Nilai ditampilkan dengan tanda kurung, contoh: GOL. DARAH (AB).
+- Form pendaftaran tetap memakai label “Golongan darah anggota” agar tidak membingungkan saat input.
