@@ -334,3 +334,30 @@
   .id-card-preview .back-copy strong{font-size:12px!important}
   .id-card-preview .back-detail{gap:2px!important}
 }
+
+
+/* v95 — soft colored Reichas virtual stamp on card back */
+.id-card-back .back-compass-img{
+  right:28px;
+  top:50%;
+  bottom:auto;
+  width:245px;
+  height:245px;
+  object-fit:contain;
+  border-radius:50%;
+  opacity:.22;
+  filter:saturate(.78) contrast(.94);
+  mix-blend-mode:multiply;
+  transform:translateY(-50%) rotate(-7deg);
+  pointer-events:none;
+  z-index:2;
+}
+@media(max-width:760px){
+  .id-card-back .back-compass-img{
+    right:-2px;
+    top:50%;
+    width:138px;
+    height:138px;
+    opacity:.22;
+  }
+}
