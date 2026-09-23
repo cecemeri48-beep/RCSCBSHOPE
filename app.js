@@ -4,7 +4,7 @@ const sb = hasSupabase ? window.supabase.createClient(cfg.supabaseUrl, cfg.supab
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const demoKey = 'rcs-cbs-hope-demo-members';
-const demoMembers = () => JSON.parse(localStorage.getItem(demoKey) || '[]');
+const demoMembers = () => { try { const value=JSON.parse(localStorage.getItem(demoKey) || '[]'); return Array.isArray(value) ? value : []; } catch (_) { return []; } };
 const saveDemo = (items) => localStorage.setItem(demoKey, JSON.stringify(items));
 const safe = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const initials = (name='') => name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase() || 'RC';
@@ -25,7 +25,7 @@ function shareMemberCard(member) {
   const url=member?.public_token ? verifyUrl(member.public_token) : siteUrl();
   const text=`Kartu anggota RCS.CBS HOPE — ${String(member?.name || 'Anggota').toUpperCase()}`;
   if (navigator.share) navigator.share({title:'Kartu Anggota RCS.CBS HOPE',text,url}).catch(()=>{});
-  else window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`,'_blank','noopener');
+  else { const waUrl='https:'+String.fromCharCode(47,47)+'wa.me/?text='+encodeURIComponent(text+'\n'+url); window.open(waUrl,'_blank','noopener,noreferrer'); }
 }
 function uuid() {
   if (window.crypto?.randomUUID) return window.crypto.randomUUID();
@@ -58,6 +58,8 @@ async function optimizePhoto(file) {
 }
 async function uploadPhoto(file) {
   if (!file) return { path:null, url:null };
+  const allowedTypes=new Set(['image/jpeg','image/png','image/webp']);
+  if (!allowedTypes.has(String(file.type || '').toLowerCase())) throw new Error('Format foto harus JPG, PNG, atau WebP.');
   const prepared=await optimizePhoto(file);
   if (prepared.size > 5 * 1024 * 1024) throw new Error('Ukuran foto maksimal 5 MB. Pilih foto yang lebih kecil.');
   if (!isConfigured()) {
@@ -84,25 +86,41 @@ function renderQRCode(canvas, value) {
   }
 }
 
+function safeImageUrl(value='') {
+  const raw=String(value || '').trim();
+  if (!raw) return '';
+  if (/^data:image\/(?:png|jpe?g|webp);base64,/i.test(raw) || raw.startsWith('blob:')) return raw;
+  try { const parsed=new URL(raw, window.location.href); return ['http:','https:'].includes(parsed.protocol) ? parsed.href : ''; } catch (_) { return ''; }
+}
 function photoUrlsForMember(member) {
   const urls=[];
-  if (member?.photo_url) urls.push(member.photo_url);
-  if (isConfigured() && member?.photo_path) urls.push(sb.storage.from('member-photos').getPublicUrl(member.photo_path).data.publicUrl);
+  if (member?.photo_url) urls.push(safeImageUrl(member.photo_url));
+  if (isConfigured() && member?.photo_path) urls.push(safeImageUrl(sb.storage.from('member-photos').getPublicUrl(member.photo_path).data.publicUrl));
   return [...new Set(urls.filter(Boolean))];
 }
+
 function photoUrlForMember(member) { return photoUrlsForMember(member)[0] || ''; }
 function cardPhotoMarkup(member) {
   const urls=photoUrlsForMember(member); const photoSrc=urls[0] || ''; const fallbackSrc=urls[1] || '';
   const fallback = `<div class="id-card-photo placeholder" style="display:${photoSrc ? 'none' : 'grid'}">${safe(initials(member.name))}</div>`;
   if (!photoSrc) return `<div class="photo-shell">${fallback}</div>`;
-  const retry=fallbackSrc ? `if(!this.dataset.retried){this.dataset.retried='1';this.src='${safe(fallbackSrc)}'}else{this.style.display='none';this.nextElementSibling.style.display='grid'}` : `this.style.display='none';this.nextElementSibling.style.display='grid'`;
-  return `<div class="photo-shell"><img class="id-card-photo" src="${safe(photoSrc)}" alt="Foto ${safe(member.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="${retry}" />${fallback}</div>`;
+  return `<div class="photo-shell"><img class="id-card-photo js-card-photo" src="${safe(photoSrc)}" data-fallback-src="${safe(fallbackSrc)}" alt="Foto ${safe(member.name)}" loading="lazy" referrerpolicy="no-referrer" />${fallback}</div>`;
 }
+function bindCardPhotoFallbacks(root=document) {
+  $$('.js-card-photo',root).forEach(image=>image.addEventListener('error',()=>{
+    const fallback=safeImageUrl(image.dataset.fallbackSrc);
+    if (fallback && image.dataset.retried!=='1') { image.dataset.retried='1'; image.src=fallback; return; }
+    image.style.display='none';
+    image.nextElementSibling?.style.setProperty('display','grid');
+  }));
+}
+
 
 function renderResult(member, target=$('#verificationResult')) {
   if (!member) { target.innerHTML='<div class="empty"><span>×</span><strong>Data tidak ditemukan</strong><small>Periksa nomor registrasi atau hubungi pengurus.</small></div>'; return; }
   const logo = $('.brand img')?.src || '';
   target.innerHTML = `<div class="verification-card-wrap"><div class="verification-card-visual"><div class="id-card-face verification-id-card" id="verifiedFront"><div class="membership-watermark">MEMBERS ONLY</div><div class="id-card-top"><img class="id-card-logo" src="${safe(logo)}" alt="Logo RCS.CBS HOPE" /><span class="id-card-badge status-${statusClass(member.status)}">${safe(member.status || 'ANGGOTA')}</span></div><div class="id-card-main">${cardPhotoMarkup(member)}<div><span class="id-card-label">Nama anggota</span><div class="id-card-name">${safe(member.name).toUpperCase()}</div><div class="id-card-reg">${safe(member.registration_number || 'Nomor belum diterbitkan')}</div><div class="id-card-blood">GOL. DARAH <b>(${safe(member.blood_type)})</b></div><div class="id-card-tagline">PENCINTA ALAM · COMMUNITY MEMBER</div></div></div><div class="id-card-qr">${member.status === 'Aktif' && (member.public_token || member.id) ? '<canvas id="resultQr"></canvas>' : '<span class="qr-pending">MENUNGGU<br>VERIFIKASI</span>'}</div><div class="id-card-bottom"><span>RCS.CBS HOPE</span><span>BERLAKU SEUMUR HIDUP</span><span>SELAMA KARTU AKTIF</span><span>MEMBER ID</span></div></div><div class="id-card-back verification-card-back hidden" id="verifiedBack"><div class="back-copy"><span class="back-kicker">REICHAS CHELEBES</span><strong>Bangga menjadi bagian Keluarga RCS.CBS.</strong><p>Di mana pun langkah membawa kita, Keluarga Reichas Chelebes tetap terhubung. Kartu ini adalah identitas anggota—jembatan komunikasi, koordinasi, dan kepedulian saat dibutuhkan.</p></div><div class="back-detail"><div class="back-detail-block"><span>PEMILIK LEGACY</span><strong>${safe(member.parent_name).toUpperCase()}</strong></div><div class="back-detail-block"><span>NAMA ANGKATAN</span><strong>${safe(displayCohortName(member.cohort_name))}</strong></div><div class="back-detail-block back-card-number"><strong>${safe(member.registration_number || 'Nomor belum diterbitkan')}</strong></div></div></div></div><div class="verification-card-info"><div><span>Pemilik legacy</span><strong>${safe(member.parent_name).toUpperCase()}</strong></div><div><span>Golongan darah</span><strong>${safe(member.blood_type)}</strong></div><div><span>Nama angkatan</span><strong>${safe(displayCohortName(member.cohort_name))}</strong></div></div><div class="verification-actions"><button class="btn btn-dark" id="printMemberCard" type="button">Download Kartu PDF <b>↓</b></button><button class="btn btn-dark" id="downloadMemberPng" type="button">Simpan Kartu PNG <b>↓</b></button><button class="btn btn-outline zoom-member-card" id="zoomMemberCard" type="button">Perbesar kartu <b>⤢</b></button><button class="btn btn-outline" id="toggleCardSide" type="button">Lihat sisi belakang <b>↔</b></button><button class="btn btn-outline" id="shareMemberCard" type="button">Bagikan kartu <b>↗</b></button></div></div>`;
+  bindCardPhotoFallbacks(target);
   if(member.status === 'Aktif' && (member.public_token || member.id)) renderQRCode($('#resultQr'), verifyUrl(member.public_token || member.id));
   $('#printMemberCard')?.addEventListener('click', () => openPrintCard(member)); $('#downloadMemberPng')?.addEventListener('click', () => openPrintCard(member,'png')); $('#zoomMemberCard')?.addEventListener('click', () => openCardPreview(member));
   $('#shareMemberCard')?.addEventListener('click', () => shareMemberCard(member));
@@ -116,7 +134,7 @@ function openCardPreview(member) {
   if (!member) { toast('Data anggota tidak ditemukan.'); return; }
   const modal=$('#cardModal'); const body=$('#cardModalBody'); const logo=$('.brand img')?.src || ''; const compass='legacy-compass-gold-3d.png'; const house='legacy-house-forest-gray.jpg';
   body.innerHTML=`<div class="id-card-preview"><div class="id-card-face"><div class="membership-watermark">MEMBERS ONLY</div><div class="id-card-top"><img class="id-card-logo" src="${safe(logo)}" alt="Logo RCS.CBS HOPE" /><span class="id-card-badge status-${statusClass(member.status)}">${safe(member.status || 'ANGGOTA')}</span></div><div class="id-card-main">${cardPhotoMarkup(member)}<div><span class="id-card-label">Nama anggota</span><div class="id-card-name">${safe(member.name).toUpperCase()}</div><div class="id-card-reg">${safe(member.registration_number || 'Nomor belum diterbitkan')}</div><div class="id-card-blood">GOL. DARAH <b>(${safe(member.blood_type)})</b></div><div class="id-card-tagline">PENCINTA ALAM · COMMUNITY MEMBER</div></div></div><div class="id-card-qr">${member.status === 'Aktif' && (member.public_token || member.id) ? '<canvas id="modalQr"></canvas>' : '<span class="qr-pending">MENUNGGU<br>VERIFIKASI</span>'}</div><div class="id-card-bottom"><span>RCS.CBS HOPE</span><span>BERLAKU SEUMUR HIDUP</span><span>SELAMA KARTU AKTIF</span><span>MEMBER ID</span></div></div><div class="id-card-back"><img class="back-compass-img" src="${safe(compass)}" alt="Mata angin" /><img class="back-house-img" src="${safe(house)}" alt="Siluet rumah RCS.CBS" /><div class="back-copy"><span class="back-kicker">REICHAS CHELEBES</span><strong>Bangga menjadi bagian Keluarga RCS.CBS.</strong><p>Di mana pun langkah membawa kita, Keluarga Reichas Chelebes tetap terhubung. Kartu ini adalah identitas anggota—jembatan komunikasi, koordinasi, dan kepedulian saat dibutuhkan.</p></div><div class="back-detail"><div class="back-detail-block"><span>PEMILIK LEGACY</span><strong>${safe(member.parent_name).toUpperCase()}</strong></div><div class="back-detail-block"><span>NAMA ANGKATAN</span><strong>${safe(displayCohortName(member.cohort_name))}</strong></div><div class="back-detail-block back-card-number"><strong>${safe(member.registration_number || 'Nomor belum diterbitkan')}</strong></div></div></div></div><div class="modal-actions"><button class="btn btn-dark" id="modalPrintCard" type="button">Download Kartu PDF <b>↓</b></button><button class="btn btn-dark" id="modalDownloadPng" type="button">Simpan Kartu PNG <b>↓</b></button><button class="btn btn-outline" id="modalShareCard" type="button">Bagikan kartu <b>↗</b></button></div>`;
-  if(member.status === 'Aktif' && (member.public_token || member.id)) renderQRCode($('#modalQr'), verifyUrl(member.public_token || member.id)); $('#modalShareCard')?.addEventListener('click',()=>shareMemberCard(member)); $('#modalPrintCard')?.addEventListener('click',()=>openPrintCard(member)); $('#modalDownloadPng')?.addEventListener('click',()=>openPrintCard(member,'png')); modal.classList.remove('hidden'); document.body.classList.add('modal-open');
+  bindCardPhotoFallbacks(body); if(member.status === 'Aktif' && (member.public_token || member.id)) renderQRCode($('#modalQr'), verifyUrl(member.public_token || member.id)); $('#modalShareCard')?.addEventListener('click',()=>shareMemberCard(member)); $('#modalPrintCard')?.addEventListener('click',()=>openPrintCard(member)); $('#modalDownloadPng')?.addEventListener('click',()=>openPrintCard(member,'png')); modal.classList.remove('hidden'); document.body.classList.add('modal-open');
 }
 function closeCardPreview(){ $('#cardModal')?.classList.add('hidden'); document.body.classList.remove('modal-open'); }
 $('#closeCardModal')?.addEventListener('click',closeCardPreview); $('[data-close-card]')?.addEventListener('click',closeCardPreview); document.addEventListener('keydown',event=>{if(event.key==='Escape') closeCardPreview();});
@@ -229,20 +247,10 @@ async function findMember(value) {
   const key=normalizeVerificationInput(value); if (!key) return null;
   const registrationKey=key.toUpperCase(); const trailingCode=trailingVerificationCode(key);
   if (isConfigured()) {
-    const byRegistration=await sb.from('member_verification').select('*').eq('registration_number',registrationKey).limit(1).maybeSingle();
-    if (byRegistration.error) throw byRegistration.error;
-    if (byRegistration.data) return byRegistration.data;
-    if (isUuid(key)) {
-      const byToken=await sb.from('member_verification').select('*').eq('public_token',key).limit(1).maybeSingle();
-      if (byToken.error) throw byToken.error;
-      if (byToken.data) return byToken.data;
-    }
-    if (/^[A-Z0-9]{6,12}$/.test(trailingCode)) {
-      const byTrailingCode=await sb.from('member_verification').select('*').ilike('registration_number',`%${trailingCode}`).limit(1).maybeSingle();
-      if (byTrailingCode.error) throw byTrailingCode.error;
-      return byTrailingCode.data || null;
-    }
-    return null;
+    const lookup=isUuid(key) ? key : (registrationKey || trailingCode);
+    const {data,error}=await sb.rpc('verify_member',{p_key:lookup});
+    if (error) throw error;
+    return Array.isArray(data) ? (data[0] || null) : (data || null);
   }
   const normalizedKey=key.replace(/\s+/g,'').toLowerCase();
   return demoMembers().find(m=>String(m.registration_number||'').replace(/\s+/g,'').toLowerCase()===normalizedKey || trailingVerificationCode(m.registration_number)===trailingCode || m.public_token===key) || null;
@@ -332,12 +340,12 @@ function generateMemberId(sequence){const clean=String(sequence||'').trim();if(!
 async function updateRegistrationNumber(id,value){const registration_number=String(value||'').trim().toUpperCase();if(!registration_number){toast('Isi nomor registrasi terlebih dahulu');return;}try{if(isConfigured()){const {error}=await sb.from('members').update({registration_number}).eq('id',id);if(error)throw error;}else{const items=demoMembers().map(m=>m.id===id?{...m,registration_number}:m);saveDemo(items)}toast('Nomor registrasi disimpan');await loadMembers();}catch(e){toast(e.message||'Nomor registrasi gagal disimpan')}}
 async function updateStatus(id,status){try{if(isConfigured()){const {error}=await sb.from('members').update({status}).eq('id',id);if(error)throw error;}else{const items=demoMembers().map(m=>m.id===id?{...m,status}:m);saveDemo(items)}toast('Status diperbarui');loadMembers();}catch(e){toast(e.message||'Status gagal diperbarui')}}
 $('#adminLoginForm').addEventListener('submit',async e=>{e.preventDefault();const alert=$('#adminAlert');clearAlert(alert);try{if(!isConfigured()){if(!localDemoAllowed)throw new Error('Koneksi server belum siap di perangkat ini. Muat ulang halaman lalu coba lagi.');alertBox(alert,'Mode demo aktif: dashboard contoh dibuka. Isi config.js untuk login Supabase.','success');$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');loadMembers();return;}const {error}=await sb.auth.signInWithPassword({email:$('#adminEmail').value,password:$('#adminPassword').value});if(error)throw error;$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');await loadMembers();}catch(e){alertBox(alert,e.message||'Login gagal.','error')}});
-function csvCell(value){return `"${String(value ?? '').replace(/"/g,'""')}"`;}
+function csvCell(value){let text=String(value ?? '').replace(/[\r\n]+/g,' ');if(/^[=+\-@\t]/.test(text))text=`'${text}`;return `"${text.replace(/"/g,'""')}"`;}
 function downloadMembersCsv(){const headers=['No. Registrasi','Nama Anggota','Nama Orang Tua','Nama Angkatan Orang Tua','Golongan Darah Anggota','WhatsApp Orang Tua','Alamat Orang Tua','Status','Tanggal Input'];const rows=adminMembers.map(m=>[m.registration_number,m.name,m.parent_name,m.cohort_name,m.blood_type,m.parent_phone,m.parent_address,m.status,m.created_at].map(csvCell).join(','));const csv='\ufeff'+[headers.map(csvCell).join(','),...rows].join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='data-anggota-rcs-cbs-hope.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('Data berhasil diunduh');}
 $('#downloadMembers')?.addEventListener('click',downloadMembersCsv);$('#adminSearch')?.addEventListener('input',renderAdminRows);$('#adminStatusFilter')?.addEventListener('change',renderAdminRows);$('#clearAdminFilters')?.addEventListener('click',()=>{if($('#adminSearch'))$('#adminSearch').value='';if($('#adminStatusFilter'))$('#adminStatusFilter').value='';renderAdminRows();});$('#refreshMembers').addEventListener('click',()=>loadMembers());$('#adminSignOut').addEventListener('click',async()=>{if(isConfigured())await sb.auth.signOut();$('#adminDashboardView').classList.add('hidden');$('#adminLoginView').classList.remove('hidden');toast('Anda telah keluar');});
 
 let adminTaps=0; let adminTapTimer=null;
 $('#adminTrigger')?.addEventListener('click',(event)=>{event.preventDefault();adminTaps++;clearTimeout(adminTapTimer);adminTapTimer=setTimeout(()=>{adminTaps=0;},1800);if(adminTaps>=5){adminTaps=0;const panel=$('#pengurus');panel.classList.toggle('hidden');if(!panel.classList.contains('hidden')){panel.scrollIntoView({behavior:'smooth'});toast('Area pengurus dibuka');}else{toast('Area pengurus ditutup');}}});
-function routeFromHash(){const hash=window.location.hash;if(hash.startsWith('#verify=')){const token=decodeURIComponent(hash.slice(8));$('#verifyInput').value=token;$('#cek').scrollIntoView({behavior:'smooth'});findMember(token).then(renderResult).catch(()=>renderResult(null));}}
+function routeFromHash(){const hash=window.location.hash;if(hash.startsWith('#verify=')){let token='';try{token=decodeURIComponent(hash.slice(8));}catch(_){token=hash.slice(8);}$('#verifyInput').value=token;$('#cek').scrollIntoView({behavior:'smooth'});findMember(token).then(renderResult).catch(()=>renderResult(null));}}
 routeFromHash(); window.addEventListener('hashchange',routeFromHash);
 // In demo mode the form works locally; production setup is documented in README.md.
