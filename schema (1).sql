@@ -39,6 +39,13 @@ alter table public.members add column if not exists cohort_name text;
 alter table public.members alter column cohort_year drop not null;
 alter table public.members add column if not exists parent_phone text;
 alter table public.members add column if not exists parent_address text;
+alter table public.members add column if not exists competencies text[] not null default array[]::text[];
+alter table public.members add column if not exists competencies_updated_at timestamptz;
+alter table public.members add column if not exists competencies_verified_by uuid references auth.users(id) on delete set null;
+do $$ begin
+  alter table public.members add constraint members_competencies_allowed
+    check (competencies <@ array['rimba','vertikal','speleo','maritim','kultura','mastermind']::text[]);
+exception when duplicate_object then null; end $$;
 
 create or replace function public.assign_registration_number()
 returns trigger language plpgsql security definer set search_path = public as $$
@@ -50,6 +57,9 @@ begin
   new.status := 'Menunggu Verifikasi';
   new.public_token := gen_random_uuid();
   new.registration_number := null;
+  new.competencies := array[]::text[];
+  new.competencies_updated_at := null;
+  new.competencies_verified_by := null;
   if new.registration_number is null or new.registration_number = '' then
     insert into public.registration_counters(year, last_number)
       values (v_year, 1)
@@ -70,6 +80,23 @@ returns trigger language plpgsql as $$ begin new.updated_at = now(); return new;
 drop trigger if exists members_updated_at on public.members;
 create trigger members_updated_at before update on public.members
 for each row execute function public.set_updated_at();
+
+create or replace function public.audit_member_competencies()
+returns trigger language plpgsql security definer set search_path = public, auth as $$
+begin
+  if new.competencies is distinct from old.competencies then
+    select coalesce(array_agg(distinct lower(trim(code)) order by lower(trim(code))), array[]::text[])
+      into new.competencies
+      from unnest(coalesce(new.competencies, array[]::text[])) as competency(code);
+    new.competencies_updated_at := now();
+    new.competencies_verified_by := auth.uid();
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists members_competencies_audit on public.members;
+create trigger members_competencies_audit before update of competencies on public.members
+for each row execute function public.audit_member_competencies();
 
 create table if not exists public.admin_users (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -108,22 +135,23 @@ create policy "admins can read admin list" on public.admin_users for select to a
 -- View verifikasi hanya memuat informasi dasar anggota Aktif.
 drop view if exists public.member_verification;
 create view public.member_verification with (security_invoker = true) as
-  select public_token, registration_number, name, parent_name, cohort_name, cohort_year, blood_type::text as blood_type, photo_path, photo_url, status::text as status
+  select public_token, registration_number, name, parent_name, cohort_name, cohort_year, blood_type::text as blood_type, photo_path, photo_url, status::text as status, competencies
   from public.members where status = 'Aktif';
 revoke all on public.member_verification from anon, authenticated;
 
 -- Public verification only returns one active member for an exact token, full
 -- registration number, or the final generated card code. It cannot list rows.
-create or replace function public.verify_member(p_key text)
+drop function if exists public.verify_member(text);
+create function public.verify_member(p_key text)
 returns table (
   public_token uuid, registration_number text, name text, parent_name text,
   cohort_name text, cohort_year integer, blood_type text, photo_path text,
-  photo_url text, status text
+  photo_url text, status text, competencies text[]
 )
 language sql stable security definer set search_path = public, pg_temp as $$
   select m.public_token, m.registration_number, m.name, m.parent_name,
          m.cohort_name, m.cohort_year, m.blood_type::text, m.photo_path,
-         m.photo_url, m.status::text
+         m.photo_url, m.status::text, m.competencies
   from public.members m
   where m.status = 'Aktif'
     and length(trim(coalesce(p_key, ''))) between 6 and 100
