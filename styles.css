@@ -361,3 +361,25 @@
     opacity:.22;
   }
 }
+
+/* v96 — root-level transparent stamp asset; larger and clearly visible */
+.id-card-back .back-compass-img{
+  right:42px;
+  top:50%;
+  width:315px;
+  height:315px;
+  opacity:.28;
+  object-fit:contain;
+  mix-blend-mode:multiply;
+  filter:saturate(.82) contrast(.96);
+  transform:translateY(-50%) rotate(-7deg);
+}
+@media(max-width:760px){
+  .id-card-back .back-compass-img{
+    right:-10px;
+    top:50%;
+    width:165px;
+    height:165px;
+    opacity:.27;
+  }
+}
