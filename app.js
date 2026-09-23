@@ -249,7 +249,12 @@ async function findMember(value) {
   if (isConfigured()) {
     const lookup=isUuid(key) ? key : (registrationKey || trailingCode);
     const {data,error}=await sb.rpc('verify_member',{p_key:lookup});
-    if (error) throw error;
+    if (error) {
+      if (error.code === 'PGRST202' || /verify_member/i.test(error.message || '')) {
+        throw new Error('Layanan verifikasi belum aktif. Jalankan supabase/hotfix-v93.sql di Supabase SQL Editor.');
+      }
+      throw error;
+    }
     return Array.isArray(data) ? (data[0] || null) : (data || null);
   }
   const normalizedKey=key.replace(/\s+/g,'').toLowerCase();

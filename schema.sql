@@ -140,10 +140,17 @@ $$;
 revoke all on function public.verify_member(text) from public;
 grant execute on function public.verify_member(text) to anon, authenticated;
 
-insert into storage.buckets (id, name, public)
-values ('member-photos', 'member-photos', true, 5242880, array['image/jpeg','image/png','image/webp'])
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'member-photos',
+  'member-photos',
+  true,
+  5242880,
+  array['image/jpeg','image/png','image/webp']::text[]
+)
 on conflict (id) do update set
-  public = true,
+  name = excluded.name,
+  public = excluded.public,
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 

@@ -288,3 +288,49 @@
 
 .back-card-number strong{font-size:8px!important;letter-spacing:.02em!important;white-space:nowrap}
 @media(max-width:760px){.back-card-number strong{font-size:6.5px!important;letter-spacing:0!important}}
+
+
+/* Mobile card hotfix v93: readable names and collision-free back details */
+@media(max-width:760px){
+  .id-card-preview .id-card-face:not(:has(.id-card-qr canvas)) .id-card-main,
+  .verification-id-card:not(:has(.id-card-qr canvas)) .id-card-main{
+    padding-right:0!important
+  }
+  .id-card-qr:has(.qr-pending){display:none!important}
+  .id-card-preview .id-card-name,
+  .verification-id-card .id-card-name{
+    font-size:clamp(13px,4.2vw,18px)!important;
+    line-height:1.06!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+    hyphens:none!important
+  }
+  .id-card-preview .back-copy{
+    max-width:57%!important
+  }
+  .id-card-preview .back-copy p{
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:5;
+    overflow:hidden;
+    font-size:8.5px!important;
+    line-height:1.3!important
+  }
+  .id-card-preview .back-detail{
+    left:18px!important;
+    right:45%!important;
+    bottom:10px!important;
+    gap:3px!important
+  }
+  .id-card-preview .back-detail-block{margin-top:0!important}
+  .id-card-preview .back-detail-block span{font-size:6px!important}
+  .id-card-preview .back-detail-block strong{font-size:8px!important;line-height:1.1!important}
+  .id-card-preview .back-card-number strong{font-size:6px!important}
+}
+@media(max-width:390px){
+  .id-card-preview .id-card-name,
+  .verification-id-card .id-card-name{font-size:13px!important}
+  .id-card-preview .back-copy p{-webkit-line-clamp:4;font-size:7.8px!important}
+  .id-card-preview .back-copy strong{font-size:12px!important}
+  .id-card-preview .back-detail{gap:2px!important}
+}
