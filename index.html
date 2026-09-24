@@ -86,7 +86,7 @@
           <div class="section-intro"><span class="section-number">02</span><div><div class="eyebrow">Verifikasi kartu</div><h2>Cek identitas anggota</h2><p>Masukkan nomor registrasi atau buka tautan QR kartu.</p></div></div>
           <div class="check-layout">
             <form class="soft-card check-form" id="verifyForm"><div class="round-icon">⌕</div><h3>Kode verifikasi</h3><p>Masukkan kode paling belakang kartu atau scan QR.</p><div class="check-row"><input id="verifyInput" placeholder="K7M4Q9" /><button class="btn btn-dark" type="submit">Cek <b>→</b></button></div><button class="btn btn-outline scan-trigger" id="openScanner" type="button">▣ Scan QR / Barcode <b>⌁</b></button><div class="scan-panel hidden" id="scanPanel"><video id="scannerVideo" playsinline muted></video><div class="scan-guide">Arahkan kamera ke QR code atau barcode kartu anggota.</div><button class="btn btn-outline small" id="closeScanner" type="button">Tutup kamera</button><div class="form-alert" id="scanAlert" role="status" aria-live="polite"></div></div><div class="form-alert" id="verifyAlert" role="status" aria-live="polite"></div></form>
-            <div class="result-box" id="verificationResult"><div class="empty"><span>◌</span><strong>Hasil verifikasi muncul di sini</strong><small>Data yang tampil hanya data dasar anggota aktif.</small></div></div>
+            <div class="result-box" id="verificationResult"><div class="empty"><span>◌</span><strong>Hasil verifikasi muncul di sini</strong><small>Scan QR menampilkan kartu dan peta jejak anggota aktif.</small></div></div>
           </div>
         </section>
 
@@ -128,6 +128,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="qrcode.min.js?v=92"></script>
     <script src="config.js?v=92"></script>
-    <script src="app-v99.js"></script>
+    <script src="app-v100.js"></script>
   </body>
 </html>
