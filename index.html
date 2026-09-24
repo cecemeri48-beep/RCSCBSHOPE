@@ -56,13 +56,13 @@
           <form class="soft-card registration-form" id="registrationForm">
             <div class="form-grid">
               <div class="form-section-heading wide"><b>01</b><span>Identitas anggota</span><small>Data yang akan tercetak di kartu.</small></div>
-              <label class="field wide">Nama lengkap anggota keluarga <em>*</em><input name="name" required placeholder="Contoh: Raka Pratama" /></label>
+              <label class="field wide">Nama lengkap anggota keluarga <em>*</em><input name="name" required autocomplete="name" placeholder="Contoh: Raka Pratama" /></label>
               <label class="field wide">Golongan darah anggota <em>*</em><select name="blood_type" required><option value="">Pilih</option><option>A</option><option>B</option><option>AB</option><option>O</option><option>Tidak tahu</option></select></label>
               <div class="form-section-heading wide"><b>02</b><span>Data orang tua &amp; kontak</span><small>Gunakan nomor WhatsApp yang aktif.</small></div>
-              <label class="field">Nama orang tua anggota <em>*</em><input name="parent_name" required placeholder="Nama orang tua anggota" /></label>
+              <label class="field">Nama orang tua anggota <em>*</em><input name="parent_name" required autocomplete="name" placeholder="Nama orang tua anggota" /></label>
               <label class="field">Nama angkatan orang tua di Reichas Chelebes <em>*</em><input class="cohort-name-input" name="cohort_name" required placeholder="Contoh: ANGKATAN RIMBA" /></label>
-              <label class="field">WhatsApp orang tua <em>*</em><input name="parent_phone" required type="tel" inputmode="tel" autocomplete="tel" pattern="(?:\+62|62|08)[0-9\s-]{8,15}" title="Gunakan nomor WhatsApp aktif, misalnya 081234567890 atau 6281234567890" placeholder="08xxxxxxxxxx" /></label>
-              <label class="field wide">Alamat orang tua <em>*</em><textarea name="parent_address" required rows="3" placeholder="Alamat lengkap orang tua"></textarea></label>
+              <label class="field">WhatsApp orang tua <em>*</em><input name="parent_phone" required type="tel" inputmode="tel" autocomplete="tel" pattern="(?:\+62|62|08)[0-9\s\x2d]{8,15}" title="Gunakan nomor WhatsApp aktif, misalnya 081234567890 atau 6281234567890" placeholder="08xxxxxxxxxx" /></label>
+              <label class="field wide">Alamat orang tua <em>*</em><textarea name="parent_address" required autocomplete="street-address" rows="3" placeholder="Alamat lengkap orang tua"></textarea></label>
               <div class="form-section-heading wide"><b>03</b><span>Foto &amp; persetujuan</span><small>Foto jelas membantu proses verifikasi.</small></div>
               <label class="field wide file-field">Foto anggota <em>*</em><input name="photo" required type="file" accept="image/png,image/jpeg,image/webp" /><small>JPG / PNG / WebP · maksimal 5 MB</small><div class="photo-upload-preview hidden" id="photoPreview"><img id="photoPreviewImage" alt="Pratinjau foto anggota" /><div><strong id="photoPreviewName">Foto siap dikirim</strong><small id="photoPreviewMeta"></small></div><button class="btn btn-outline small" id="clearPhoto" type="button">Ganti foto</button></div></label>
             </div>

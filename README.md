@@ -6,7 +6,7 @@ Website mandiri untuk pendaftaran anak, verifikasi QR, dashboard pengurus, dan k
 
 - `index.html` — halaman website utama
 - `styles.css` — desain responsive modern formal
-- `app.js` — form, verifikasi, dashboard, QR, dan cetak PDF
+- `app-v100.js` — form, verifikasi, dashboard, QR, peta jejak, dan cetak PDF
 - `config.js` — isi URL dan anon key Supabase di sini
 - `supabase/schema.sql` — tabel, trigger nomor registrasi, RLS, view verifikasi, dan storage foto
 - `netlify.toml` — konfigurasi deploy Netlify
@@ -16,7 +16,11 @@ Website mandiri untuk pendaftaran anak, verifikasi QR, dashboard pengurus, dan k
 
 1. Buat project di Supabase.
 2. Buka **SQL Editor**.
-3. Jalankan seluruh isi `supabase/schema.sql`.
+3. Jalankan SQL berikut secara berurutan:
+   - `supabase/schema.sql`
+   - `hotfix-v97-competencies.sql`
+   - `hotfix-v100-journey-map.sql`
+   - `hotfix-v101-security.sql`
 4. Di **Project Settings > API**, salin `Project URL` dan `anon public key`.
 5. Tempel ke `config.js`:
 
@@ -75,6 +79,11 @@ git push -u origin main
 4. Publish directory: `.`
 5. Deploy.
 6. Setelah mendapat URL Netlify, update `siteUrl` di `config.js`, commit, dan push lagi.
+
+Jika project Supabase sudah dibuat dari schema versi sebelumnya, jalankan
+`hotfix-v101-security.sql` sekali. Hotfix ini mengunci status pendaftaran,
+token publik, nomor registrasi, timestamp, serta upload foto dari request
+manual yang tidak tepercaya.
 
 ## Catatan keamanan
 

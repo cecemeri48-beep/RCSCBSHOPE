@@ -2,7 +2,7 @@ RCS.CBS HOPE — v73 unified mobile card
 
 Replace/upload ONLY:
 - index.html
-- app.js
+- app-v100.js
 - styles.css
 
 Do NOT replace config.js.

@@ -414,3 +414,21 @@
 .result-box{display:block;width:100%;min-width:0;overflow:hidden}.result-box>.empty{min-height:164px;display:grid;place-content:center}.verification-card-wrap,.verification-card-visual{display:block;width:100%;max-width:100%;min-width:0}.journey-map{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box}.journey-track,.journey-advanced-step{min-width:0;overflow:hidden}.journey-map h3,.journey-map h4,.journey-map p,.journey-map small,.journey-map strong{overflow-wrap:anywhere}.journey-root-meta,.journey-track-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.journey-level-pill{display:inline-flex;align-items:center;min-height:17px;padding:2px 6px;border-radius:999px;background:#e8c892;color:#4f3f22;font-size:8px;letter-spacing:.08em;font-weight:900;line-height:1}.journey-root .journey-level-pill{background:#e8c892;color:#17343b}.journey-track-meta .journey-track-state{display:inline-block}.journey-advanced{position:relative;z-index:1;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.16)}.journey-advanced-map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.journey-advanced-step{display:grid;grid-template-columns:26px 1fr;column-gap:8px;align-items:start;padding:10px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:11px}.journey-advanced-step.is-locked{opacity:.56}.journey-advanced-number{grid-column:1;grid-row:1 / span 2;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:rgba(232,200,146,.22);color:#f6dda4;font-size:9px;font-weight:900}.journey-advanced-icon{grid-column:2;grid-row:1;font-size:16px;color:#e8c892;line-height:1}.journey-advanced-step>div{grid-column:2}.journey-advanced-step h4{margin:3px 0 3px;color:#fff;font-size:11px}.journey-advanced-step p{margin:0;color:rgba(255,255,255,.66);font-size:9px;line-height:1.4}.journey-advanced-step small{display:block;margin-top:7px;color:#f6dda4;font-size:8px}.journey-root strong{overflow-wrap:anywhere}
 @media(max-width:900px){.check-layout{grid-template-columns:1fr}.result-box{padding:11px}.verification-card-wrap{margin:0}.journey-map{padding:15px 12px;margin-top:12px;border-radius:15px}.journey-map-head{display:block}.journey-map-head>div{padding-right:73px}.journey-map h3{font-size:19px;line-height:1.14}.journey-map-head p{max-width:none;font-size:10px;line-height:1.45}.journey-count{position:absolute;right:12px;top:14px;min-width:53px;padding:7px 6px;font-size:17px}.journey-root{max-width:none;margin-top:12px;padding:11px 10px;gap:9px}.journey-root strong{font-size:12px;line-height:1.35}.journey-root small{font-size:9px}.journey-tracks{grid-template-columns:1fr;gap:8px}.journey-track{padding:10px;border-radius:11px}.journey-track p{min-height:0;margin:7px 0;font-size:10px}.journey-track li{font-size:10px}.journey-track-foot{margin-top:8px;padding-top:7px}.journey-advanced-map{grid-template-columns:1fr;gap:7px}.journey-advanced-step{grid-template-columns:29px 25px 1fr;align-items:center;padding:9px}.journey-advanced-number{grid-column:1;grid-row:1;width:25px;height:25px}.journey-advanced-icon{grid-column:2;grid-row:1}.journey-advanced-step>div{grid-column:3;grid-row:1}.journey-advanced-step h4{margin:1px 0 2px}.journey-advanced-step p{font-size:9px}.journey-advanced-step small{margin-top:3px}}
 @media(max-width:390px){.result-box{padding:8px}.journey-map{padding:13px 10px}.journey-map h3{font-size:18px}.journey-count{right:10px;top:12px}.journey-map-head>div{padding-right:66px}.journey-level-pill{font-size:7px}.journey-track-state{font-size:7px}.journey-track h4{font-size:11px}}
+
+
+/* Mobile: keep the submit action in document flow so it never covers form fields. */
+@media(max-width:760px){
+  .form-end{
+    position:relative;
+    bottom:auto;
+    z-index:1;
+    margin:22px 0 0;
+    padding:0;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    backdrop-filter:none;
+  }
+  .form-end .btn{width:100%;flex:1 1 100%}
+  .form-end>span{display:block;font-size:11px;line-height:1.4}
+}
