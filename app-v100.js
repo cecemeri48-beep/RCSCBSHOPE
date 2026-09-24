@@ -20,6 +20,15 @@ const COMPETENCY_TRACKS = Object.freeze([
   { code:'kultura', label:'JEJAK KULTURA', icon:'🪶', color:'red', intro:'Merawat cerita, budaya, dan keluarga.', steps:['Kenal cerita keluarga','Belajar dari kakak dan orang tua','Bagikan satu cerita baik'] },
   { code:'mastermind', label:'JEJAK MASTERMIND', icon:'🧩', color:'gold', intro:'Mengasah logika, kreativitas, dan kerja tim.', steps:['Pecahkan tantangan kecil','Buat ide bersama tim','Pimpin satu aksi positif'] }
 ]);
+function memberCompetencyCodes(member={}) {
+  const allowed=new Set(COMPETENCY_TRACKS.map(item=>item.code));
+  return [...new Set((Array.isArray(member.competencies) ? member.competencies : []).map(String).filter(code=>allowed.has(code)))];
+}
+function competencyBadgesMarkup(member) {
+  const passed=new Set(memberCompetencyCodes(member));
+  const badge=item=>`<span class="competency-badge${passed.has(item.code)?' passed':''}">${passed.has(item.code)?'<b aria-hidden="true">★</b> ':''}${safe(item.label)}</span>`;
+  return `<div class="id-card-competencies" aria-label="Lencana kompetensi"><div>${COMPETENCY_TRACKS.slice(0,3).map(badge).join('')}</div><div>${COMPETENCY_TRACKS.slice(3,6).map(badge).join('')}</div></div>`;
+}
 function journeyEvents(member={}) {
   const events=Array.isArray(member.journey) ? member.journey : [];
   if(events.length) return events;
@@ -36,25 +45,21 @@ function journeyMapMarkup(member={}) {
   const passed=new Set(memberCompetencyCodes(member));
   const rootEvent=journeyEvents(member).find(event=>event.event_type==='membership_activated');
   const rootDone=active && Boolean(rootEvent);
+  const advancedOpen=active && passed.size>0;
   const tracks=COMPETENCY_TRACKS.map(track=>{
     const complete=passed.has(track.code);
     const unlocked=active;
     const state=complete?'LULUS':unlocked?'TERBUKA':'TERKUNCI';
     const steps=track.steps.map((step,index)=>`<li class="${complete?'done':''}"><span>${complete?'✓':index+1}</span>${safe(step)}</li>`).join('');
-    return `<article class="journey-track journey-${track.color} ${complete?'is-complete':''} ${unlocked?'is-open':'is-locked'}"><div class="journey-track-head"><span class="journey-track-icon" aria-hidden="true">${track.icon}</span><div><span class="journey-track-state">${state}</span><h4>${safe(track.label)}</h4></div></div><p>${safe(track.intro)}</p><ol>${steps}</ol><div class="journey-track-foot"><span>${complete?'Kompetensi tercapai':'Pilih sesuai minat'}</span><b>${complete?'★':'→'}</b></div></article>`;
+    return `<article class="journey-track journey-${track.color} ${complete?'is-complete':''} ${unlocked?'is-open':'is-locked'}"><div class="journey-track-head"><span class="journey-track-icon" aria-hidden="true">${track.icon}</span><div><div class="journey-track-meta"><span class="journey-level-pill">DASAR</span><span class="journey-track-state">${state}</span></div><h4>${safe(track.label)}</h4></div></div><p>${safe(track.intro)}</p><ol>${steps}</ol><div class="journey-track-foot"><span>${complete?'DASAR · SELESAI':'DASAR · PILIHAN MINAT'}</span><b>${complete?'★':'→'}</b></div></article>`;
   }).join('');
-  return `<section class="journey-map" aria-label="Peta jejak anggota"><div class="journey-map-head"><div><span class="journey-kicker">PASPOR JEJAK ANGGOTA</span><h3>Peta perjalanan ${safe(member.name || 'anggota')}</h3><p>Langkahnya ringan, bertahap, dan selalu bersama pendamping. Pilih jejak yang paling disukai.</p></div><span class="journey-count">${passed.size}/6<br><small>kompetensi</small></span></div><div class="journey-root ${rootDone?'is-complete':'is-locked'}"><span class="journey-root-icon">${rootDone?'✓':'○'}</span><div><span class="journey-track-state">${rootDone?'TERCATAT':'MENUNGGU AKTIF'}</span><strong>Lulus Menjadi Anggota RCS.CBS HOPE</strong><small>${rootDone ? journeyDate(rootEvent?.occurred_at) : 'Peta terbuka setelah kartu aktif'}</small></div></div><div class="journey-connector" aria-hidden="true"></div><div class="journey-section-label"><span>LANJUTAN PETA JENJANG KOMPETENSI</span><small>6 Jejak sesuai minat</small></div><div class="journey-tracks">${tracks}</div><p class="journey-note">Setiap jejak bisa dimulai dari kegiatan kecil. Bintang dan sertifikat diberikan setelah pengurus memverifikasi tahap kelulusan.</p></section>`;
+  const advancedSteps=[
+    {number:'01',title:'Pendalaman',description:'Tambah satu pengalaman baru di jejak yang sudah dipilih.',detail:'1 kegiatan pilihan',icon:'↗'},
+    {number:'02',title:'Karya Kecil',description:'Buat atau dokumentasikan karya sederhana bersama tim.',detail:'1 bukti karya',icon:'✦'},
+    {number:'03',title:'Berbagi Jejak',description:'Bagikan pengalaman dan bantu teman belajar dengan aman.',detail:'1 aksi berbagi',icon:'♥'}
+  ].map(step=>`<article class="journey-advanced-step ${advancedOpen?'is-open':'is-locked'}"><span class="journey-advanced-number">${step.number}</span><span class="journey-advanced-icon" aria-hidden="true">${advancedOpen?step.icon:'○'}</span><div><span class="journey-track-state">${advancedOpen?'TERBUKA':'TERKUNCI'}</span><h4>${safe(step.title)}</h4><p>${safe(step.description)}</p><small>${safe(step.detail)}</small></div></article>`).join('');
+  return `<section class="journey-map" aria-label="Peta jejak anggota"><div class="journey-map-head"><div><span class="journey-kicker">PASPOR JEJAK ANGGOTA</span><h3>Peta perjalanan ${safe(member.name || 'anggota')}</h3><p>Langkah ringan, bertahap, dan selalu bersama pendamping. Pilih jejak yang paling disukai.</p></div><span class="journey-count">${passed.size}/6<br><small>kompetensi</small></span></div><div class="journey-root ${rootDone?'is-complete':'is-locked'}"><span class="journey-root-icon">${rootDone?'✓':'○'}</span><div><div class="journey-root-meta"><span class="journey-level-pill">DASAR</span><span class="journey-track-state">${rootDone?'SELESAI':'MENUNGGU AKTIF'}</span></div><strong>Lulus Menjadi Anggota RCS.CBS HOPE</strong><small>${rootDone ? journeyDate(rootEvent?.occurred_at) : 'Peta terbuka setelah kartu aktif'}</small></div></div><div class="journey-connector" aria-hidden="true"></div><div class="journey-section-label"><span>PETA DASAR · 6 JEJAK KOMPETENSI</span><small>Sesuai minat anggota</small></div><div class="journey-tracks">${tracks}</div><div class="journey-advanced"><div class="journey-section-label"><span>PETA LANJUTAN</span><small>${advancedOpen?'Terbuka setelah satu jejak dasar lulus':'Terbuka setelah satu jejak dasar lulus'}</small></div><div class="journey-advanced-map">${advancedSteps}</div></div><p class="journey-note">Kegiatan dibuat ringan untuk usia 7–17 tahun. Bintang dan sertifikat diberikan setelah pengurus memverifikasi tahap kelulusan.</p></section>`;
 }
-function memberCompetencyCodes(member={}) {
-  const allowed=new Set(COMPETENCY_TRACKS.map(item=>item.code));
-  return [...new Set((Array.isArray(member.competencies) ? member.competencies : []).map(String).filter(code=>allowed.has(code)))];
-}
-function competencyBadgesMarkup(member) {
-  const passed=new Set(memberCompetencyCodes(member));
-  const badge=item=>`<span class="competency-badge${passed.has(item.code)?' passed':''}">${passed.has(item.code)?'<b aria-hidden="true">★</b> ':''}${safe(item.label)}</span>`;
-  return `<div class="id-card-competencies" aria-label="Lencana kompetensi"><div>${COMPETENCY_TRACKS.slice(0,3).map(badge).join('')}</div><div>${COMPETENCY_TRACKS.slice(3,6).map(badge).join('')}</div></div>`;
-}
-
 function alertBox(el, message, kind='success') { el.textContent = message; el.className = `form-alert ${kind}`; }
 function clearAlert(el) { el.textContent=''; el.className='form-alert'; }
 function toast(message) { const el=$('#toast'); el.textContent=message; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2800); }
