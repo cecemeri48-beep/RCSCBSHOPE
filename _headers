@@ -8,10 +8,13 @@
   Permissions-Policy: camera=(self), microphone=(), geolocation=()
 
 /styles.css
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
 
 /app.js
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
 
 /config.js
   Cache-Control: no-store
+
+/app-v99.js
+  Cache-Control: no-cache, no-store, must-revalidate
