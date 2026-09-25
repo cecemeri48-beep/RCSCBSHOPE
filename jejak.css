@@ -48,3 +48,9 @@
 @keyframes memory-glow{0%,55%{background-position:180% 0}85%,100%{background-position:-80% 0}}
 @media(max-width:700px){.memory-feature{grid-template-columns:52px minmax(0,1fr) 36px;gap:11px;max-width:none;margin:0 0 13px;padding:12px}.memory-feature img{width:52px;height:52px}.memory-feature strong{font-size:15px}.memory-feature em{font-size:10px}.memory-feature>b{width:34px;height:34px;font-size:18px}}
 @media(prefers-reduced-motion:reduce){.memory-feature:before{animation:none}.memory-feature{transition:none}.memory-feature>b{transition:none}}
+
+/* v13: use a real memory photo and a gentle attention pulse */
+.memory-feature img{object-fit:cover;border:2px solid rgba(255,255,255,.9);border-radius:13px;box-shadow:0 5px 12px rgba(20,34,40,.22);filter:none}
+.memory-feature>b{animation:memory-arrow-pulse 2.8s ease-in-out infinite}
+@keyframes memory-arrow-pulse{0%,70%,100%{box-shadow:0 0 0 0 rgba(16,38,45,.22)}82%{box-shadow:0 0 0 9px rgba(16,38,45,0)}}
+@media(prefers-reduced-motion:reduce){.memory-feature>b{animation:none}}

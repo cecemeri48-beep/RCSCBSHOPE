@@ -615,3 +615,9 @@
 @media(max-width:900px){.milestone-memory{grid-column:1;min-width:0;width:100%;max-width:460px}}
 @media(max-width:760px){.milestone-memory{grid-template-columns:46px minmax(0,1fr) 32px;gap:10px;padding:11px 12px}.milestone-memory img{width:46px;height:46px}.milestone-memory strong{font-size:14px}.milestone-memory em{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.milestone-memory:before{animation:none}.milestone-memory{transition:none}.milestone-memory>b{transition:none}}
+
+/* v13: use a real memory photo and a gentle attention pulse */
+.milestone-memory img{object-fit:cover;border:2px solid rgba(255,255,255,.88);border-radius:11px;box-shadow:0 4px 10px rgba(20,34,40,.2);filter:none}
+.milestone-memory>b{animation:memory-arrow-pulse 2.8s ease-in-out infinite}
+@keyframes memory-arrow-pulse{0%,70%,100%{box-shadow:0 0 0 0 rgba(16,38,45,.22)}82%{box-shadow:0 0 0 8px rgba(16,38,45,0)}}
+@media(prefers-reduced-motion:reduce){.milestone-memory>b{animation:none}}
