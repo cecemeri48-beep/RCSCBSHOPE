@@ -6,7 +6,7 @@ Website mandiri untuk pendaftaran anak, verifikasi QR, dashboard pengurus, dan k
 
 - `index.html` — halaman website utama
 - `styles.css` — desain responsive modern formal
-- `app-v100.js` — form, verifikasi, dashboard, QR, peta jejak, dan cetak PDF
+- `app-v100.js` — form, verifikasi, dashboard, QR, peta jejak, countdown 100 tahun, dan cetak PDF
 - `config.js` — isi URL dan anon key Supabase di sini
 - `supabase/schema.sql` — tabel, trigger nomor registrasi, RLS, view verifikasi, dan storage foto
 - `netlify.toml` — konfigurasi deploy Netlify

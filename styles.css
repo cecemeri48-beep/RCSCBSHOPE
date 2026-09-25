@@ -555,3 +555,35 @@
     height:88px!important;
   }
 }
+
+/* Century milestone countdown */
+.milestone-banner{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;margin:0 0 72px;padding:26px 28px;background:linear-gradient(135deg,#10262d 0%,#173940 58%,#315e61 100%);border:1px solid rgba(226,191,133,.48);border-radius:20px;color:#fff;box-shadow:0 16px 34px rgba(20,34,40,.13);overflow:hidden}
+.milestone-banner:after{content:"";position:absolute;inset:10px;border:1px solid rgba(255,255,255,.1);border-radius:14px;pointer-events:none}
+.milestone-copy,.century-countdown,.milestone-foot{position:relative;z-index:1}
+.milestone-copy{min-width:0}
+.milestone-kicker{display:block;color:#f0cdb9;font-size:9px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;margin-bottom:7px}
+.milestone-copy h2{margin:0;color:#fff;font-size:clamp(25px,3vw,36px);line-height:1;letter-spacing:-.05em}
+.milestone-copy p{max-width:430px;margin:9px 0 0;color:rgba(255,255,255,.7);font-size:12px;line-height:1.5}
+.century-countdown{display:grid;grid-template-columns:repeat(4,minmax(58px,1fr));gap:8px;min-width:360px}
+.countdown-unit{display:grid;justify-items:center;min-width:0;padding:10px 8px;background:rgba(5,20,25,.3);border:1px solid rgba(232,200,146,.38);border-radius:12px}
+.countdown-unit strong{font-variant-numeric:tabular-nums;color:#f6dda4;font-size:25px;line-height:1;font-weight:850;letter-spacing:-.04em}
+.countdown-unit span{margin-top:5px;color:rgba(255,255,255,.66);font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.milestone-foot{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:-2px;padding-top:14px;border-top:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.58);font-size:9px;letter-spacing:.12em;font-weight:800}
+.milestone-foot b{color:#e8c892}
+.milestone-foot a{color:#fff;font-size:11px;letter-spacing:0;text-decoration:underline;text-underline-offset:4px}
+.milestone-orbit{position:absolute;right:-84px;top:-96px;width:260px;height:260px;border:1px solid rgba(255,255,255,.12);border-radius:50%;box-shadow:0 0 0 18px rgba(255,255,255,.035),0 0 0 38px rgba(255,255,255,.025);pointer-events:none}
+.milestone-orbit span{position:absolute;left:50%;top:50%;width:9px;height:9px;border-radius:50%;background:#f0a995;box-shadow:0 0 0 5px rgba(240,169,149,.12)}
+.milestone-orbit span:nth-child(1){transform:translate(-50%,-50%) translateX(98px)}
+.milestone-orbit span:nth-child(2){transform:translate(-50%,-50%) translateY(98px);background:#e8c892}
+.milestone-orbit span:nth-child(3){transform:translate(-50%,-50%) translateX(-98px);background:#9fc9bb}
+@media(max-width:900px){.milestone-banner{grid-template-columns:1fr}.century-countdown{min-width:0;width:100%;max-width:460px}.milestone-foot{grid-column:1}}
+@media(max-width:760px){.milestone-banner{gap:18px;margin:0 0 58px;padding:21px 16px;border-radius:17px}.milestone-banner:after{inset:8px;border-radius:12px}.milestone-copy h2{font-size:28px}.milestone-copy p{font-size:11px;max-width:280px}.century-countdown{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-width:none}.countdown-unit{padding:12px 8px}.countdown-unit strong{font-size:28px}.countdown-unit span{font-size:8px}.milestone-foot{align-items:flex-start;flex-direction:column;gap:9px;margin-top:0;padding-top:12px;font-size:8px}.milestone-foot a{font-size:11px}.milestone-orbit{right:-116px;top:-100px;width:230px;height:230px}}
+
+/* Keep the milestone ornament inside its card so QA and narrow screens stay clean. */
+.milestone-orbit{right:0;width:210px;height:210px}
+@media(max-width:760px){.milestone-orbit{right:0;top:-76px;width:170px;height:170px}}
+@media(max-width:760px){
+  .milestone-orbit span:nth-child(1){transform:translate(-50%,-50%) translateX(65px)}
+  .milestone-orbit span:nth-child(2){transform:translate(-50%,-50%) translateY(65px)}
+  .milestone-orbit span:nth-child(3){transform:translate(-50%,-50%) translateX(-65px)}
+}

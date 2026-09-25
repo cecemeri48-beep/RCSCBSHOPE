@@ -410,5 +410,23 @@ $('#downloadMembers')?.addEventListener('click',downloadMembersCsv);$('#adminSea
 let adminTaps=0; let adminTapTimer=null;
 $('#adminTrigger')?.addEventListener('click',(event)=>{event.preventDefault();adminTaps++;clearTimeout(adminTapTimer);adminTapTimer=setTimeout(()=>{adminTaps=0;},1800);if(adminTaps>=5){adminTaps=0;const panel=$('#pengurus');panel.classList.toggle('hidden');if(!panel.classList.contains('hidden')){panel.scrollIntoView({behavior:'smooth'});toast('Area pengurus dibuka');}else{toast('Area pengurus ditutup');}}});
 function routeFromHash(){const hash=window.location.hash;if(hash.startsWith('#verify=')){let token='';try{token=decodeURIComponent(hash.slice(8));}catch(_){token=hash.slice(8);}$('#verifyInput').value=token;$('#cek').scrollIntoView({behavior:'smooth'});findMember(token).then(renderResult).catch(()=>renderResult(null));}}
+function initCenturyCountdown(){
+  const root=$('#centuryCountdown'); if(!root)return;
+  const target=Date.UTC(2094,6,23,16,0,0); // 24 Juli 2094, 00.00 WITA
+  const days=$('#countdownDays'), hours=$('#countdownHours'), minutes=$('#countdownMinutes'), seconds=$('#countdownSeconds');
+  const formatDays=value=>new Intl.NumberFormat('id-ID').format(value);
+  const tick=()=>{
+    const remaining=Math.max(0,target-Date.now());
+    const totalSeconds=Math.floor(remaining/1000);
+    const dayCount=Math.floor(totalSeconds/86400);
+    const hourCount=Math.floor((totalSeconds%86400)/3600);
+    const minuteCount=Math.floor((totalSeconds%3600)/60);
+    const secondCount=totalSeconds%60;
+    days.textContent=formatDays(dayCount); hours.textContent=String(hourCount).padStart(2,'0'); minutes.textContent=String(minuteCount).padStart(2,'0'); seconds.textContent=String(secondCount).padStart(2,'0');
+    if(remaining===0){root.classList.add('is-complete'); root.setAttribute('aria-label','RCS.CBS HOPE telah mencapai 100 tahun');}
+  };
+  tick(); window.setInterval(tick,1000);
+}
+initCenturyCountdown();
 routeFromHash(); window.addEventListener('hashchange',routeFromHash);
 // In demo mode the form works locally; production setup is documented in README.md.
