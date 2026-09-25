@@ -9,6 +9,8 @@ Replace/upload ONLY:
 - jejak.js
 - jejak.webmanifest
 - jejak-sw.js
+- thumbnail-jejak.jpg
+- assets/jejak-universe.jpg
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:

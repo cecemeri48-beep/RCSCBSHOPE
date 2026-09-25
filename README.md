@@ -9,6 +9,8 @@ Website mandiri untuk pendaftaran anak, verifikasi QR, dashboard pengurus, dan k
 - `app-v100.js` — form, verifikasi, dashboard, QR, peta jejak, countdown 100 tahun, dan cetak PDF
 - `jejak.html` — mini-app/PWA mandiri untuk countdown dan perjalanan anggota
 - `jejak.css`, `jejak.js`, `jejak.webmanifest`, `jejak-sw.js` — tampilan, logika, instalasi, dan cache mini-app
+- `thumbnail-jejak.jpg` — thumbnail preview untuk WhatsApp dan media sosial
+- `assets/jejak-universe.jpg` — background hyper-realistic alam dan semesta
 - `config.js` — isi URL dan anon key Supabase di sini
 - `supabase/schema.sql` — tabel, trigger nomor registrasi, RLS, view verifikasi, dan storage foto
 - `netlify.toml` — konfigurasi deploy Netlify
@@ -81,6 +83,8 @@ git push -u origin main
 4. Publish directory: `.`
 5. Deploy.
 6. Setelah mendapat URL Netlify, update `siteUrl` di `config.js`, commit, dan push lagi.
+
+Jika mini-app dipindahkan ke repo/domain baru, ubah URL `og:url`, `og:image`, dan link aplikasi sesuai domain final mini-app. Link pendaftaran tetap diarahkan ke `https://rcscbshope.vercel.app/#daftar`.
 
 Jika project Supabase sudah dibuat dari schema versi sebelumnya, jalankan
 `hotfix-v101-security.sql` sekali. Hotfix ini mengunci status pendaftaran,
