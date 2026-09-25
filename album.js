@@ -9,6 +9,7 @@
   const close = document.querySelector('#lightboxClose');
   const previous = document.querySelector('#lightboxPrev');
   const next = document.querySelector('#lightboxNext');
+  const loadMoreButton = document.querySelector('#loadMorePhotos');
   if (!gallery || !controls || !lightbox) return;
 
   const cleanName = value => value.replace(/\s+(Image|Photo)$/i, '').trim();
@@ -28,29 +29,52 @@
   let activeGroup = groups[0];
   let visiblePhotos = photos;
   let activeIndex = 0;
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let renderedCount = 0;
+  const batchSize = 12;
 
   const renderControls = () => {
     controls.innerHTML = groups.map((group, index) => `<button type="button" class="album-filter${index === 0 ? ' is-active' : ''}" data-group="${encodeURIComponent(group)}">${group}</button>`).join('');
   };
 
-  const renderGallery = () => {
-    visiblePhotos = activeGroup === 'Semua foto' ? photos : photos.filter(photo => photo.group === activeGroup);
-    if (!visiblePhotos.length) {
-      gallery.innerHTML = '<p class="album-loading">Belum ada foto di kategori ini.</p>';
-      return;
-    }
-    gallery.innerHTML = visiblePhotos.map((photo, index) => `
+  const photoMarkup = (photo, index) => `
       <article class="album-card">
         <button class="album-photo" type="button" data-index="${index}" aria-label="Perbesar ${escapeHtml(cleanName(photo.name))}">
-          <img src="${photo.thumb}" alt="${escapeHtml(cleanName(photo.name))}" loading="lazy" decoding="async" />
+          <img src="${photo.thumb}" alt="${escapeHtml(cleanName(photo.name))}" loading="${index < batchSize ? 'eager' : 'lazy'}" decoding="async" />
           <span>${escapeHtml(cleanName(photo.name))}</span>
         </button>
         <a class="album-whatsapp" href="${whatsappUrl(photo)}" target="_blank" rel="noopener noreferrer" aria-label="Bagikan ${escapeHtml(cleanName(photo.name))} ke WhatsApp">Bagikan WA <b>↗</b></a>
       </article>
-    `).join('');
+    `;
+
+  const bindImageFallbacks = () => {
     gallery.querySelectorAll('img').forEach(photoImage => {
-      photoImage.addEventListener('error', () => photoImage.closest('.album-photo')?.remove(), { once: true });
+      photoImage.addEventListener('error', () => photoImage.closest('.album-card')?.remove(), { once: true });
     });
+  };
+
+  const renderMore = () => {
+    const nextPhotos = visiblePhotos.slice(renderedCount, renderedCount + batchSize);
+    gallery.insertAdjacentHTML('beforeend', nextPhotos.map((photo, index) => photoMarkup(photo, renderedCount + index)).join(''));
+    renderedCount += nextPhotos.length;
+    bindImageFallbacks();
+    if (loadMoreButton) {
+      loadMoreButton.hidden = renderedCount >= visiblePhotos.length;
+      loadMoreButton.innerHTML = `Muat ${Math.min(batchSize, visiblePhotos.length - renderedCount)} foto berikutnya <b>↓</b>`;
+    }
+  };
+
+  const renderGallery = () => {
+    visiblePhotos = activeGroup === 'Semua foto' ? photos : photos.filter(photo => photo.group === activeGroup);
+    renderedCount = 0;
+    gallery.innerHTML = '';
+    if (!visiblePhotos.length) {
+      gallery.innerHTML = '<p class="album-loading">Belum ada foto di kategori ini.</p>';
+      if (loadMoreButton) loadMoreButton.hidden = true;
+      return;
+    }
+    renderMore();
   };
 
   const updateLightbox = () => {
@@ -95,7 +119,20 @@
     const photo = event.target.closest('.album-photo');
     if (photo) openLightbox(Number(photo.dataset.index));
   });
+  loadMoreButton?.addEventListener('click', renderMore);
   image.addEventListener('click', () => image.classList.toggle('is-zoomed'));
+  lightbox.addEventListener('touchstart', event => {
+    const touch = event.changedTouches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+  }, { passive: true });
+  lightbox.addEventListener('touchend', event => {
+    const touch = event.changedTouches[0];
+    const distanceX = touch.clientX - touchStartX;
+    const distanceY = touch.clientY - touchStartY;
+    if (Math.abs(distanceX) < 55 || Math.abs(distanceX) < Math.abs(distanceY)) return;
+    moveLightbox(distanceX > 0 ? -1 : 1);
+  }, { passive: true });
   close.addEventListener('click', closeLightbox);
   previous.addEventListener('click', () => moveLightbox(-1));
   next.addEventListener('click', () => moveLightbox(1));
