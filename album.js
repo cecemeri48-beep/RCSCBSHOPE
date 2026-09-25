@@ -101,20 +101,34 @@
     updateLightbox();
   };
 
-  const sharePhoto = async photo => {
+  const sharePhoto = async (photo, button) => {
     if (!photo) return;
     const title = `Kenangan RCS.CBS HOPE — ${cleanName(photo.name)}`;
+    const defaultLabel = 'Kirim foto WA <b>↗</b>';
+    if (button) {
+      button.disabled = true;
+      button.innerHTML = 'Menyiapkan foto…';
+    }
     try {
-      const response = await fetch(photo.full || photo.thumb, { mode: 'cors', cache: 'no-store' });
+      const source = photo.id
+        ? `https://lh3.googleusercontent.com/d/${photo.id}=w1600`
+        : (photo.full || photo.thumb);
+      const response = await fetch(source, { mode: 'cors', cache: 'no-store' });
       if (!response.ok) throw new Error('Foto tidak dapat diunduh');
       const blob = await response.blob();
       const file = new File([blob], `${cleanName(photo.name)}.jpg`, { type: blob.type || 'image/jpeg' });
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title });
+      const canShareFile = navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }));
+      if (canShareFile) {
+        await navigator.share({ files: [file], title, text: 'Kenangan RCS.CBS HOPE' });
         return;
       }
     } catch (error) {
       if (error?.name === 'AbortError') return;
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = defaultLabel;
+      }
     }
     window.open(photo.full || photo.thumb, '_blank', 'noopener,noreferrer');
   };
@@ -133,7 +147,7 @@
     if (share) {
       event.preventDefault();
       event.stopPropagation();
-      sharePhoto(visiblePhotos[Number(share.dataset.shareIndex)]);
+      sharePhoto(visiblePhotos[Number(share.dataset.shareIndex)], share);
       return;
     }
     const photo = event.target.closest('.album-photo');

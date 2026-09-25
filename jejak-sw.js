@@ -1,4 +1,4 @@
-const CACHE = 'rcs-jejak-v10';
+const CACHE = 'rcs-jejak-v11';
 const SHELL = ['jejak.html', 'jejak.css', 'jejak.js', 'jejak.webmanifest', 'album.html', 'album.css', 'album.js', 'album-data.js', 'logo-transparent-256.png', 'logo-transparent-512.png', 'logo-album-transparent.png', 'jejak-universe.jpg', 'thumbnail-jejak.jpg'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(
