@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v73 unified mobile card
+RCS.CBS HOPE — v12 featured memory trail
 
 Replace/upload ONLY:
 - index.html
@@ -18,12 +18,11 @@ Replace/upload ONLY:
 - jejak-universe.jpg
 
 Do NOT replace config.js.
-After commit and Vercel Ready, open:
-https://rcscbshope.vercel.app/?v=73
+After commit and Vercel Ready, open the production URL with a fresh query parameter.
 
-Perbaikan:
-- Posisi QR pada hasil cek dan pratinjau dibuat sama.
-- QR tidak menempel ke tepi kartu.
-- Nama, nomor, QR, dan informasi bawah memakai area yang konsisten.
-- Tampilan cek/pratinjau disamakan dengan proporsi kartu PNG/PDF.
-- Perbaikan CSV v72 tetap termasuk.
+Perubahan v12:
+- Tombol unggulan “Jejak yang Sudah Terlewati” ditempatkan tepat di bawah timer.
+- Tombol dibuat lebih menonjol dengan warna hangat, ikon, kilau halus, dan efek hover/focus.
+- Deskripsi menjelaskan bahwa halaman berisi foto-foto kenangan.
+- Nama “Album Kenangan” diperbarui menjadi “Jejak yang Sudah Terlewati”.
+- Cache Jejak dinaikkan ke v12 agar aset terbaru segera dimuat.
