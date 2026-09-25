@@ -602,3 +602,6 @@
 @keyframes hourglass-flow{0%,100%{transform:scaleY(.55);opacity:.65}50%{transform:scaleY(1);opacity:1}}
 @media(max-width:760px){.milestone-copy-layout{align-items:flex-start;gap:12px}.milestone-hourglass{flex-basis:52px;width:52px;height:72px;margin-top:2px}.milestone-hourglass:before,.milestone-hourglass:after{height:5px}.hourglass-top,.hourglass-bottom{left:9px;width:34px;height:26px}.hourglass-top{top:7px}.hourglass-bottom{bottom:7px}.hourglass-neck{left:24px;top:29px;width:4px;height:15px}.hourglass-stream{left:25px;top:37px;width:2px;height:25px}.milestone-copy-layout .milestone-copy p{max-width:250px}}
 @media(prefers-reduced-motion:reduce){.hourglass-stream{animation:none}}
+
+.milestone-links{display:flex;align-items:center;gap:16px}
+@media(max-width:760px){.milestone-links{align-items:flex-start;flex-direction:column;gap:7px}}

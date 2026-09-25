@@ -4,6 +4,11 @@ Replace/upload ONLY:
 - index.html
 - app-v100.js
 - styles.css
+- jejak.html
+- jejak.css
+- jejak.js
+- jejak.webmanifest
+- jejak-sw.js
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:
