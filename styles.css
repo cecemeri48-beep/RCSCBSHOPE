@@ -432,3 +432,27 @@
   .form-end .btn{width:100%;flex:1 1 100%}
   .form-end>span{display:block;font-size:11px;line-height:1.4}
 }
+
+/* Mobile card QA: keep generated QR images and decorative circles inside bounds. */
+@media(max-width:760px){
+  .id-card-qr img{
+    display:block;
+    width:100%!important;
+    height:100%!important;
+    max-width:100%;
+  }
+  .verification-id-card:before,
+  .id-card-preview .id-card-face:before,
+  .id-card-back:before{
+    width:160px;
+    height:160px;
+    right:8px;
+    bottom:0;
+  }
+  .journey-map:before{
+    right:0;
+    top:-60px;
+    width:160px;
+    height:160px;
+  }
+}
