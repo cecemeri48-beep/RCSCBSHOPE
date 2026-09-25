@@ -9,6 +9,7 @@ Replace/upload ONLY:
 - album.css
 - album.js
 - album-data.js
+- logo-album-transparent.png
 - jejak.css
 - jejak.js
 - jejak.webmanifest

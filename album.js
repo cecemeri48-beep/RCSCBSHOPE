@@ -21,7 +21,9 @@
     "'": '&#39;'
   }[character]));
   const whatsappUrl = photo => {
-    const originalUrl = photo.drive || photo.full || photo.thumb;
+    const originalUrl = photo.id
+      ? `https://drive.google.com/uc?export=view&id=${photo.id}`
+      : (photo.drive || photo.full || photo.thumb);
     const message = `Kenangan RCS.CBS HOPE — ${cleanName(photo.name)}\n${originalUrl}`;
     return `https://wa.me/?text=${encodeURIComponent(message)}`;
   };

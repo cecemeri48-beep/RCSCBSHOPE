@@ -91,5 +91,5 @@
   nextQuote?.addEventListener('click', rotateQuote);
   window.setInterval(rotateQuote, 7000);
 
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('jejak-sw.js?v=7').catch(() => {}));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('jejak-sw.js?v=9').catch(() => {}));
 })();

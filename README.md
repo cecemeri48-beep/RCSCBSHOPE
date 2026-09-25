@@ -9,6 +9,7 @@ Website mandiri untuk pendaftaran anak, verifikasi QR, dashboard pengurus, dan k
 - `app-v100.js` — form, verifikasi, dashboard, QR, peta jejak, countdown 100 tahun, dan cetak PDF
 - `jejak.html` — mini-app/PWA mandiri untuk countdown dan perjalanan anggota
 - `album.html`, `album.css`, `album.js`, `album-data.js` — album foto kenangan dengan filter kategori dan zoom foto.
+- `logo-album-transparent.png` — watermark logo transparan besar untuk halaman album.
 - `jejak.css`, `jejak.js`, `jejak.webmanifest`, `jejak-sw.js` — tampilan, logika, instalasi, dan cache mini-app
 - `thumbnail-jejak.jpg` — thumbnail preview untuk WhatsApp dan media sosial
 - `jejak-universe.jpg` — background hyper-realistic alam dan semesta (diletakkan satu folder dengan `jejak.html`)
