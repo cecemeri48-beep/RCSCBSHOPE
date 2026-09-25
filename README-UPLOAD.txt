@@ -5,12 +5,14 @@ Replace/upload ONLY:
 - app-v100.js
 - styles.css
 - jejak.html
+- album.html
+- album.css
 - jejak.css
 - jejak.js
 - jejak.webmanifest
 - jejak-sw.js
 - thumbnail-jejak.jpg
-- assets/jejak-universe.jpg
+- jejak-universe.jpg
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open:

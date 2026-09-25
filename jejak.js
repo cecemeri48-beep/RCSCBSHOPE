@@ -23,5 +23,5 @@
   };
   tick();
   window.setInterval(tick, 1000);
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('jejak-sw.js?v=2').catch(() => {}));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('jejak-sw.js?v=3').catch(() => {}));
 })();

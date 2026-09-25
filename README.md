@@ -8,9 +8,10 @@ Website mandiri untuk pendaftaran anak, verifikasi QR, dashboard pengurus, dan k
 - `styles.css` — desain responsive modern formal
 - `app-v100.js` — form, verifikasi, dashboard, QR, peta jejak, countdown 100 tahun, dan cetak PDF
 - `jejak.html` — mini-app/PWA mandiri untuk countdown dan perjalanan anggota
+- `album.html` + `album.css` — album foto kenangan dengan tampilan grid Google Drive.
 - `jejak.css`, `jejak.js`, `jejak.webmanifest`, `jejak-sw.js` — tampilan, logika, instalasi, dan cache mini-app
 - `thumbnail-jejak.jpg` — thumbnail preview untuk WhatsApp dan media sosial
-- `assets/jejak-universe.jpg` — background hyper-realistic alam dan semesta
+- `jejak-universe.jpg` — background hyper-realistic alam dan semesta (diletakkan satu folder dengan `jejak.html`)
 - `config.js` — isi URL dan anon key Supabase di sini
 - `supabase/schema.sql` — tabel, trigger nomor registrasi, RLS, view verifikasi, dan storage foto
 - `netlify.toml` — konfigurasi deploy Netlify
