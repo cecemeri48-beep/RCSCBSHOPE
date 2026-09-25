@@ -7,6 +7,8 @@ Replace/upload ONLY:
 - jejak.html
 - album.html
 - album.css
+- album.js
+- album-data.js
 - jejak.css
 - jejak.js
 - jejak.webmanifest

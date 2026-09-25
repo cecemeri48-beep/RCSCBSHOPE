@@ -32,14 +32,12 @@
         </aside>
 
         <section class="album-frame" aria-label="Foto kenangan dari Google Drive">
-          <iframe
-            title="Album foto kenangan RCS.CBS HOPE"
-            src="https://drive.google.com/embeddedfolderview?id=15IBVf9YLB7yMwT5Z3ZABObT-MFMiNfrM#grid"
-            loading="eager"
-            allow="fullscreen"
-          ></iframe>
+          <div class="album-controls" id="albumControls" aria-label="Filter album foto"></div>
+          <div class="album-gallery" id="albumGallery" aria-live="polite">
+            <p class="album-loading">Membuka jejak foto kenangan…</p>
+          </div>
           <div class="album-fallback">
-            <span>Foto tidak muncul?</span>
+            <span>Album ini mengambil foto publik dari Google Drive.</span>
             <a href="https://drive.google.com/drive/folders/15IBVf9YLB7yMwT5Z3ZABObT-MFMiNfrM?usp=drive_link" target="_blank" rel="noopener noreferrer">Buka album di Google Drive <b>↗</b></a>
           </div>
         </section>
@@ -55,5 +53,17 @@
         <a href="jejak.html">Kembali ke timer <b>↗</b></a>
       </footer>
     </main>
+    <div class="album-lightbox" id="albumLightbox" hidden role="dialog" aria-modal="true" aria-label="Perbesar foto kenangan">
+      <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Tutup foto">×</button>
+      <button class="lightbox-nav lightbox-prev" id="lightboxPrev" type="button" aria-label="Foto sebelumnya">‹</button>
+      <figure>
+        <img id="lightboxImage" alt="" />
+        <figcaption id="lightboxCaption"></figcaption>
+      </figure>
+      <button class="lightbox-nav lightbox-next" id="lightboxNext" type="button" aria-label="Foto berikutnya">›</button>
+      <a class="lightbox-original" id="lightboxOriginal" target="_blank" rel="noopener noreferrer">Buka foto asli <b>↗</b></a>
+    </div>
+    <script src="album-data.js"></script>
+    <script src="album.js"></script>
   </body>
 </html>
