@@ -456,3 +456,102 @@
     height:160px;
   }
 }
+
+/* Mobile card back: override the desktop min-height so the back face keeps
+   the same aspect ratio as the front instead of growing wider than its box. */
+@media(max-width:760px){
+  .verification-card-back,
+  .id-card-preview .id-card-back{
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    aspect-ratio:1.58!important;
+    box-sizing:border-box;
+  }
+  .verification-card-back .back-copy,
+  .id-card-preview .id-card-back .back-copy{
+    max-width:57%!important;
+  }
+  .verification-card-back .back-kicker,
+  .id-card-preview .id-card-back .back-kicker{
+    font-size:8px!important;
+    letter-spacing:.12em!important;
+    margin-bottom:6px!important;
+  }
+  .verification-card-back .back-copy strong,
+  .id-card-preview .id-card-back .back-copy strong{
+    font-size:12px!important;
+    line-height:1.15!important;
+    margin-bottom:4px!important;
+  }
+  .verification-card-back .back-copy p,
+  .id-card-preview .id-card-back .back-copy p{
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:4;
+    overflow:hidden;
+    font-size:7.5px!important;
+    line-height:1.25!important;
+  }
+  .verification-card-back .back-detail,
+  .id-card-preview .id-card-back .back-detail{
+    left:16px!important;
+    right:45%!important;
+    bottom:8px!important;
+    gap:2px!important;
+  }
+  .verification-card-back .back-detail-block span,
+  .id-card-preview .id-card-back .back-detail-block span{
+    font-size:5.5px!important;
+  }
+  .verification-card-back .back-detail-block strong,
+  .id-card-preview .id-card-back .back-detail-block strong{
+    font-size:7.5px!important;
+    line-height:1.1!important;
+  }
+  .verification-card-back .back-card-number strong,
+  .id-card-preview .id-card-back .back-card-number strong{
+    font-size:6px!important;
+  }
+  .verification-card-back .back-house-img,
+  .id-card-preview .id-card-back .back-house-img{
+    right:0!important;
+    width:44%!important;
+    height:100%!important;
+  }
+  .verification-card-back .back-compass-img,
+  .id-card-preview .id-card-back .back-compass-img{
+    right:8px!important;
+    top:50%!important;
+    width:110px!important;
+    height:110px!important;
+    transform:translateY(-50%) rotate(-7deg)!important;
+  }
+}
+
+@media(max-width:390px){
+  .verification-card-back .back-kicker,
+  .id-card-preview .id-card-back .back-kicker{
+    font-size:7px!important;
+  }
+  .verification-card-back .back-copy strong,
+  .id-card-preview .id-card-back .back-copy strong{
+    font-size:11px!important;
+  }
+  .verification-card-back .back-copy p,
+  .id-card-preview .id-card-back .back-copy p{
+    font-size:7px!important;
+    -webkit-line-clamp:4;
+  }
+  .verification-card-back .back-detail,
+  .id-card-preview .id-card-back .back-detail{
+    left:13px!important;
+    bottom:7px!important;
+  }
+  .verification-card-back .back-compass-img,
+  .id-card-preview .id-card-back .back-compass-img{
+    right:6px!important;
+    width:88px!important;
+    height:88px!important;
+  }
+}
