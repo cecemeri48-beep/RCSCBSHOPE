@@ -20,13 +20,6 @@
     '"': '&quot;',
     "'": '&#39;'
   }[character]));
-  const whatsappUrl = photo => {
-    const originalUrl = photo.id
-      ? `https://drive.google.com/uc?export=view&id=${photo.id}`
-      : (photo.drive || photo.full || photo.thumb);
-    const message = `Kenangan RCS.CBS HOPE — ${cleanName(photo.name)}\n${originalUrl}`;
-    return `https://wa.me/?text=${encodeURIComponent(message)}`;
-  };
   const groups = ['Semua foto', ...new Set(photos.map(photo => photo.group).filter(Boolean))];
   let activeGroup = groups[0];
   let visiblePhotos = photos;
@@ -46,7 +39,7 @@
           <img src="${photo.thumb}" alt="${escapeHtml(cleanName(photo.name))}" loading="${index < batchSize ? 'eager' : 'lazy'}" decoding="async" />
           <span>${escapeHtml(cleanName(photo.name))}</span>
         </button>
-        <a class="album-whatsapp" href="${whatsappUrl(photo)}" target="_blank" rel="noopener noreferrer" aria-label="Bagikan ${escapeHtml(cleanName(photo.name))} ke WhatsApp">Bagikan WA <b>↗</b></a>
+        <button class="album-whatsapp" type="button" data-share-index="${index}" aria-label="Kirim foto ${escapeHtml(cleanName(photo.name))} ke WhatsApp">Kirim foto WA <b>↗</b></button>
       </article>
     `;
 
@@ -108,6 +101,24 @@
     updateLightbox();
   };
 
+  const sharePhoto = async photo => {
+    if (!photo) return;
+    const title = `Kenangan RCS.CBS HOPE — ${cleanName(photo.name)}`;
+    try {
+      const response = await fetch(photo.full || photo.thumb, { mode: 'cors', cache: 'no-store' });
+      if (!response.ok) throw new Error('Foto tidak dapat diunduh');
+      const blob = await response.blob();
+      const file = new File([blob], `${cleanName(photo.name)}.jpg`, { type: blob.type || 'image/jpeg' });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title });
+        return;
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+    }
+    window.open(photo.full || photo.thumb, '_blank', 'noopener,noreferrer');
+  };
+
   renderControls();
   renderGallery();
   controls.addEventListener('click', event => {
@@ -118,6 +129,13 @@
     renderGallery();
   });
   gallery.addEventListener('click', event => {
+    const share = event.target.closest('[data-share-index]');
+    if (share) {
+      event.preventDefault();
+      event.stopPropagation();
+      sharePhoto(visiblePhotos[Number(share.dataset.shareIndex)]);
+      return;
+    }
     const photo = event.target.closest('.album-photo');
     if (photo) openLightbox(Number(photo.dataset.index));
   });
