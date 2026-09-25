@@ -587,3 +587,18 @@
   .milestone-orbit span:nth-child(2){transform:translate(-50%,-50%) translateY(65px)}
   .milestone-orbit span:nth-child(3){transform:translate(-50%,-50%) translateX(-65px)}
 }
+
+/* Hourglass visual for the century milestone */
+.milestone-copy-layout{display:flex;align-items:center;gap:17px;min-width:0}
+.milestone-hourglass{position:relative;flex:0 0 64px;width:64px;height:86px;filter:drop-shadow(0 5px 8px rgba(0,0,0,.16))}
+.milestone-hourglass:before,.milestone-hourglass:after{content:"";position:absolute;left:1px;right:1px;height:6px;border:1px solid rgba(232,200,146,.75);border-radius:99px;background:#e8c892;z-index:4}
+.milestone-hourglass:before{top:2px}.milestone-hourglass:after{bottom:2px}
+.hourglass-top,.hourglass-bottom{position:absolute;left:11px;width:42px;height:31px;background:linear-gradient(145deg,rgba(255,255,255,.8),rgba(232,200,146,.14));border:1px solid rgba(232,200,146,.76);z-index:2}
+.hourglass-top{top:8px;clip-path:polygon(0 0,100% 0,60% 100%,40% 100%)}
+.hourglass-bottom{bottom:8px;clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)}
+.hourglass-neck{position:absolute;left:30px;top:34px;width:5px;height:18px;background:#e8c892;border-radius:99px;z-index:3}
+.hourglass-stream{position:absolute;left:31px;top:42px;width:3px;height:29px;border-radius:99px;background:#f6dda4;transform-origin:top;z-index:3;animation:hourglass-flow 2.4s ease-in-out infinite}
+.hourglass-bottom:after{content:"";position:absolute;left:13px;right:13px;bottom:5px;height:9px;border-radius:50% 50% 35% 35%;background:#e8c892;opacity:.88}
+@keyframes hourglass-flow{0%,100%{transform:scaleY(.55);opacity:.65}50%{transform:scaleY(1);opacity:1}}
+@media(max-width:760px){.milestone-copy-layout{align-items:flex-start;gap:12px}.milestone-hourglass{flex-basis:52px;width:52px;height:72px;margin-top:2px}.milestone-hourglass:before,.milestone-hourglass:after{height:5px}.hourglass-top,.hourglass-bottom{left:9px;width:34px;height:26px}.hourglass-top{top:7px}.hourglass-bottom{bottom:7px}.hourglass-neck{left:24px;top:29px;width:4px;height:15px}.hourglass-stream{left:25px;top:37px;width:2px;height:25px}.milestone-copy-layout .milestone-copy p{max-width:250px}}
+@media(prefers-reduced-motion:reduce){.hourglass-stream{animation:none}}
