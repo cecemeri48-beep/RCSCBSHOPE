@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v18 mobile cache refresh
+RCS.CBS HOPE — v21 three-song slideshow
 
 Replace/upload ONLY:
 - index.html
@@ -17,15 +17,16 @@ Replace/upload ONLY:
 - jejak-sw.js
 - supabase/keepalive.sql
 - README-KEEPALIVE.txt
+- README-MUSIC.txt
 - thumbnail-jejak.jpg
 - jejak-universe.jpg
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open the production URL with a fresh query parameter.
 
-Perubahan v18:
-- Teks dan tautan Google Drive tetap dihapus sepenuhnya.
-- Semua tautan album/mini app diberi versi v18 untuk melewati cache lama di mobile.
-- Service Worker memakai cache baru rcs-jejak-v18.
-- Navigasi HTML sekarang network-first agar perubahan berikutnya tidak tertahan cache lama.
-- Aset statis tetap cache-first agar mini app cepat dan hemat data.
+Perubahan v21:
+- Playlist slideshow ditambah menjadi tiga lagu.
+- Lagu baru: Lingkaran Aku Cinta Padamu — Sirkus Barock.
+- Pergantian otomatis akan melanjutkan ke lagu berikutnya.
+- File audio berhak cipta tetap tidak disertakan; lihat README-MUSIC.txt.
+- Cache mobile dinaikkan ke v21.

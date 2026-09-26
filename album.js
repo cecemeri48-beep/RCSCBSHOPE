@@ -5,11 +5,15 @@
   const lightbox = document.querySelector('#albumLightbox');
   const image = document.querySelector('#lightboxImage');
   const caption = document.querySelector('#lightboxCaption');
-  const original = document.querySelector('#lightboxOriginal');
   const close = document.querySelector('#lightboxClose');
   const previous = document.querySelector('#lightboxPrev');
   const next = document.querySelector('#lightboxNext');
   const loadMoreButton = document.querySelector('#loadMorePhotos');
+  const slideshowToggle = document.querySelector('#slideshowToggle');
+  const musicToggle = document.querySelector('#musicToggle');
+  const musicTrack = document.querySelector('#musicTrack');
+  const music = document.querySelector('#memoryMusic');
+  const progress = document.querySelector('#lightboxProgress');
   if (!gallery || !controls || !lightbox) return;
 
   const cleanName = value => value.replace(/\s+(Image|Photo)$/i, '').trim();
@@ -28,6 +32,10 @@
   let touchStartY = 0;
   let renderedCount = 0;
   const batchSize = 12;
+  const slideDuration = 5500;
+  let slideshowTimer = null;
+  let slideshowActive = false;
+  let musicActive = false;
 
   const renderControls = () => {
     controls.innerHTML = groups.map((group, index) => `<button type="button" class="album-filter${index === 0 ? ' is-active' : ''}" data-group="${encodeURIComponent(group)}">${group}</button>`).join('');
@@ -79,7 +87,72 @@
     image.src = photo.full || photo.thumb;
     image.alt = cleanName(photo.name);
     caption.textContent = `${cleanName(photo.name)}${photo.group ? ` · ${photo.group}` : ''}`;
-    original.href = photo.drive || photo.full || photo.thumb;
+  };
+
+  const updateSlideshowButton = () => {
+    if (!slideshowToggle) return;
+    slideshowToggle.textContent = slideshowActive ? '❚❚ Jeda slideshow' : '▶ Putar slideshow';
+    slideshowToggle.setAttribute('aria-pressed', String(slideshowActive));
+  };
+
+  const restartProgress = () => {
+    if (!progress) return;
+    progress.classList.remove('is-running');
+    void progress.offsetWidth;
+    if (slideshowActive) progress.classList.add('is-running');
+  };
+
+  const scheduleNextSlide = () => {
+    window.clearTimeout(slideshowTimer);
+    restartProgress();
+    if (!slideshowActive) return;
+    slideshowTimer = window.setTimeout(() => {
+      activeIndex = (activeIndex + 1) % visiblePhotos.length;
+      updateLightbox();
+      scheduleNextSlide();
+    }, slideDuration);
+  };
+
+  const startSlideshow = () => {
+    slideshowActive = true;
+    updateSlideshowButton();
+    scheduleNextSlide();
+  };
+
+  const stopSlideshow = () => {
+    slideshowActive = false;
+    window.clearTimeout(slideshowTimer);
+    progress?.classList.remove('is-running');
+    updateSlideshowButton();
+  };
+
+  const selectedTrackLabel = () => musicTrack?.selectedOptions?.[0]?.textContent || 'Musik';
+  const startMusic = async () => {
+    if (!music || !musicToggle || !musicTrack) return;
+    const source = musicTrack.value;
+    if (!music.src.endsWith(source)) music.src = source;
+    try {
+      music.volume = 0.72;
+      await music.play();
+      musicActive = true;
+      musicToggle.textContent = `♫ ${selectedTrackLabel()} · aktif`;
+      musicToggle.classList.add('is-on');
+      musicToggle.setAttribute('aria-pressed', 'true');
+    } catch (_) {
+      musicActive = false;
+      musicToggle.textContent = '♫ File musik belum ada';
+      musicToggle.classList.remove('is-on');
+      musicToggle.setAttribute('aria-pressed', 'false');
+    }
+  };
+
+  const stopMusic = () => {
+    if (!music || !musicToggle) return;
+    music.pause();
+    musicActive = false;
+    musicToggle.textContent = '♫ Putar musik';
+    musicToggle.classList.remove('is-on');
+    musicToggle.setAttribute('aria-pressed', 'false');
   };
 
   const openLightbox = index => {
@@ -87,6 +160,8 @@
     updateLightbox();
     lightbox.hidden = false;
     document.body.classList.add('is-lightbox-open');
+    startSlideshow();
+    startMusic();
     close.focus();
   };
 
@@ -94,11 +169,15 @@
     lightbox.hidden = true;
     document.body.classList.remove('is-lightbox-open');
     image.classList.remove('is-zoomed');
+    stopSlideshow();
+    stopMusic();
+    if (music) music.currentTime = 0;
   };
 
   const moveLightbox = direction => {
     activeIndex = (activeIndex + direction + visiblePhotos.length) % visiblePhotos.length;
     updateLightbox();
+    if (slideshowActive) scheduleNextSlide();
   };
 
   const sharePhoto = async (photo, button) => {
@@ -170,11 +249,20 @@
   close.addEventListener('click', closeLightbox);
   previous.addEventListener('click', () => moveLightbox(-1));
   next.addEventListener('click', () => moveLightbox(1));
+  slideshowToggle?.addEventListener('click', () => slideshowActive ? stopSlideshow() : startSlideshow());
+  musicToggle?.addEventListener('click', () => musicActive ? stopMusic() : startMusic());
+  musicTrack?.addEventListener('change', () => { if (!lightbox.hidden) startMusic(); });
+  music?.addEventListener('ended', () => {
+    if (!musicTrack || !lightbox || lightbox.hidden) return;
+    musicTrack.selectedIndex = (musicTrack.selectedIndex + 1) % musicTrack.options.length;
+    startMusic();
+  });
   lightbox.addEventListener('click', event => { if (event.target === lightbox) closeLightbox(); });
   document.addEventListener('keydown', event => {
     if (lightbox.hidden) return;
     if (event.key === 'Escape') closeLightbox();
     if (event.key === 'ArrowLeft') moveLightbox(-1);
     if (event.key === 'ArrowRight') moveLightbox(1);
+    if (event.key === ' ' && event.target === document.body) { event.preventDefault(); slideshowActive ? stopSlideshow() : startSlideshow(); }
   });
 })();

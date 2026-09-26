@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#10262d" />
     <meta name="description" content="Jejak yang Sudah Terlewati — kumpulan foto-foto kenangan RCS.CBS HOPE." />
     <link rel="icon" href="logo-transparent-256.png" />
-    <link rel="stylesheet" href="album.css?v=18" />
+    <link rel="stylesheet" href="album.css?v=21" />
     <title>Jejak yang Sudah Terlewati — RCS.CBS HOPE</title>
   </head>
   <body>
@@ -51,17 +51,31 @@
         <a href="jejak.html">Kembali ke timer <b>↗</b></a>
       </footer>
     </main>
-    <div class="album-lightbox" id="albumLightbox" hidden role="dialog" aria-modal="true" aria-label="Perbesar foto kenangan">
-      <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Tutup foto">×</button>
+    <div class="album-lightbox" id="albumLightbox" hidden role="dialog" aria-modal="true" aria-label="Slideshow foto kenangan">
+      <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Tutup slideshow">×</button>
       <button class="lightbox-nav lightbox-prev" id="lightboxPrev" type="button" aria-label="Foto sebelumnya">‹</button>
+      <div class="lightbox-manifesto" aria-hidden="true">
+        <span>PROPAGANDA ROMANTIS MASA LALU</span>
+        <span>CITA-CITA BESAR KE DEPAN</span>
+      </div>
       <figure>
         <img id="lightboxImage" alt="" />
         <figcaption id="lightboxCaption"></figcaption>
       </figure>
       <button class="lightbox-nav lightbox-next" id="lightboxNext" type="button" aria-label="Foto berikutnya">›</button>
-      <a class="lightbox-original" id="lightboxOriginal" target="_blank" rel="noopener noreferrer">Buka foto asli <b>↗</b></a>
+      <div class="lightbox-progress" aria-hidden="true"><i id="lightboxProgress"></i></div>
+      <div class="lightbox-controls" aria-label="Kontrol slideshow dan musik">
+        <button id="slideshowToggle" type="button">❚❚ Jeda slideshow</button>
+        <select id="musicTrack" aria-label="Pilih lagu slideshow">
+          <option value="my-way.mp3">My Way</option>
+          <option value="wish-you-were-here.mp3">Wish You Were Here</option>
+          <option value="lingkaran-aku-cinta-padamu.mp3">Lingkaran Aku Cinta Padamu</option>
+        </select>
+        <button id="musicToggle" type="button">♫ Putar musik</button>
+      </div>
+      <audio id="memoryMusic" preload="none"></audio>
     </div>
-    <script src="album-data.js?v=18"></script>
-    <script src="album.js?v=18"></script>
+    <script src="album-data.js?v=21"></script>
+    <script src="album.js?v=21"></script>
   </body>
 </html>
