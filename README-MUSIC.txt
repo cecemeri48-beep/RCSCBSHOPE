@@ -8,7 +8,7 @@ Playlist:
 
 File di root proyek:
 - my-way.mp3
-- wish-you-were-here.mp3
+- wish-you-were-here.mp3 — file pengganti terbaru, ±5:35, 96 kbps
 - lingkaran-aku-cinta-padamu.mp3
 
 Optimasi mobile:
