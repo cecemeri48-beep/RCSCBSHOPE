@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v21 three-song slideshow
+RCS.CBS HOPE — v22 optimized audio bundle
 
 Replace/upload ONLY:
 - index.html
@@ -18,15 +18,18 @@ Replace/upload ONLY:
 - supabase/keepalive.sql
 - README-KEEPALIVE.txt
 - README-MUSIC.txt
+- lingkaran-aku-cinta-padamu.mp3
+- wish-you-were-here.mp3
+- my-way.mp3
 - thumbnail-jejak.jpg
 - jejak-universe.jpg
 
 Do NOT replace config.js.
 After commit and Vercel Ready, open the production URL with a fresh query parameter.
 
-Perubahan v21:
-- Playlist slideshow ditambah menjadi tiga lagu.
-- Lagu baru: Lingkaran Aku Cinta Padamu — Sirkus Barock.
-- Pergantian otomatis akan melanjutkan ke lagu berikutnya.
-- File audio berhak cipta tetap tidak disertakan; lihat README-MUSIC.txt.
-- Cache mobile dinaikkan ke v21.
+Perubahan v22:
+- Ketiga lagu pengguna sudah disertakan di root proyek.
+- Semua audio dikonversi ke MP3 96 kbps dan dinormalkan untuk mobile.
+- Audio tetap preload none dan hanya dimuat setelah foto diketuk.
+- Audio tidak disimpan di Service Worker cache agar penyimpanan ponsel tetap ringan.
+- Cache halaman dinaikkan ke v22.
