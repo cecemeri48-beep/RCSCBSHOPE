@@ -36,7 +36,7 @@
 /* Subtle concrete-wall texture; CSS-only and nearly free to render */
 .album-lightbox:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.42;background-image:radial-gradient(circle at 18% 24%,rgba(240,169,149,.08) 0 2px,transparent 3px),radial-gradient(circle at 78% 68%,rgba(246,221,164,.07) 0 1px,transparent 2px),repeating-linear-gradient(0deg,transparent 0 73px,rgba(255,255,255,.018) 74px),repeating-linear-gradient(90deg,transparent 0 112px,rgba(255,255,255,.014) 113px);background-size:47px 53px,61px 57px,100% 74px,113px 100%}
 
-/* v25: hyper-realistic wall plates, optimized WebP */
+/* v26: hyper-realistic wall plates, optimized WebP */
 .album-lightbox{background-color:#0b191d;background-image:linear-gradient(90deg,rgba(7,18,22,.34),rgba(7,18,22,.08) 45%,rgba(7,18,22,.3)),url("mural-wall-desktop.webp");background-position:center;background-size:cover;background-repeat:no-repeat}
 .album-lightbox:before{opacity:.2;mix-blend-mode:soft-light}.lightbox-graffiti span{mix-blend-mode:screen;filter:saturate(.86) contrast(.96)}.album-lightbox figure img{box-shadow:0 22px 64px rgba(0,0,0,.62),0 0 0 1px rgba(246,221,164,.18)}
 @media(max-width:700px){.album-lightbox{background-image:linear-gradient(180deg,rgba(7,18,22,.2),rgba(7,18,22,.04) 45%,rgba(7,18,22,.22)),url("mural-wall-mobile.webp");background-position:center;background-size:cover}}
