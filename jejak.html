@@ -25,7 +25,7 @@
     <meta name="twitter:image" content="https://rcscbshope.vercel.app/thumbnail-jejak.jpg?v=3" />
     <link rel="manifest" href="jejak.webmanifest" />
     <link rel="icon" href="logo-transparent-256.png" />
-    <link rel="stylesheet" href="jejak.css?v=14" />
+    <link rel="stylesheet" href="jejak.css?v=15" />
     <title>Jejak RCS.CBS HOPE</title>
   </head>
   <body>
@@ -40,6 +40,7 @@
 
       <section class="app-hero" aria-labelledby="appTitle">
         <div class="app-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="shooting-stars" aria-hidden="true"><i></i><i></i></div>
         <div class="app-heading">
           <div class="app-hourglass" aria-hidden="true"><span class="glass-top"></span><span class="glass-neck"></span><span class="glass-stream"></span><span class="glass-bottom"></span></div>
           <div>
@@ -71,8 +72,17 @@
           <button class="app-tool" id="shareJejakButton" type="button">Bagikan jejak <b>↗</b></button>
           <button class="app-tool" id="installAppButton" type="button" hidden>Pasang aplikasi <b>＋</b></button>
         </div>
+        <div class="journey-progress" aria-label="Progres perjalanan dari 1994 menuju 2094">
+          <div class="journey-progress-head"><span>1994</span><strong id="journeyProgressText">—</strong><span>2094</span></div>
+          <div class="journey-progress-track"><i id="journeyProgressBar"></i><b id="journeyTodayDot" aria-hidden="true"></b></div>
+        </div>
         <div class="app-date-line"><span>24 JULI 1994</span><b>→</b><span>24 JULI 2094</span></div>
       </section>
+
+      <aside class="today-marker" aria-label="Penanda hari ini">
+        <span class="today-marker-icon" aria-hidden="true">✦</span>
+        <div><small id="todayDate">HARI INI</small><strong>Hari ini juga akan menjadi kenangan.</strong></div>
+      </aside>
 
       <section class="app-story" aria-labelledby="storyTitle">
         <div class="story-heading">
@@ -97,6 +107,6 @@
         <a href="https://rcscbshope.vercel.app/">Kembali ke portal utama <b>↗</b></a>
       </footer>
     </main>
-    <script src="jejak.js?v=14"></script>
+    <script src="jejak.js?v=15"></script>
   </body>
 </html>
