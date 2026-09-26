@@ -621,12 +621,3 @@
 .milestone-memory>b{animation:memory-arrow-pulse 2.8s ease-in-out infinite}
 @keyframes memory-arrow-pulse{0%,70%,100%{box-shadow:0 0 0 0 rgba(16,38,45,.22)}82%{box-shadow:0 0 0 8px rgba(16,38,45,0)}}
 @media(prefers-reduced-motion:reduce){.milestone-memory>b{animation:none}}
-
-/* v102 — eligibility clarity, name search, and view-only privacy */
-.eligibility-note{display:flex;gap:14px;align-items:flex-start;margin:-4px 0 18px;padding:16px 18px;border:1px solid #d7e5df;border-left:4px solid var(--green);border-radius:12px;background:#f2f7f4;color:#52645f}
-.eligibility-icon{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:9px;background:#e1efe7;color:var(--green);font-weight:900}
-.eligibility-note strong{display:block;color:var(--ink);font-size:14px;margin-bottom:3px}.eligibility-note p{margin:0;max-width:780px;font-size:12px;line-height:1.55}
-.name-lookup-note{display:flex;gap:10px;align-items:flex-start;margin-top:12px;padding:12px 13px;border:1px solid #d8e5e1;border-radius:10px;background:#eef5f2;color:#52645f}
-.name-lookup-note>span{display:grid;place-items:center;width:24px;height:24px;flex:none;border-radius:50%;background:#dcebe4;color:var(--green);font-size:11px}.name-lookup-note strong,.name-lookup-note small{display:block}.name-lookup-note strong{color:var(--ink);font-size:12px}.name-lookup-note small{margin-top:2px;font-size:10px;line-height:1.45}.name-lookup-note.compact{margin-top:14px}
-.view-only-actions .btn{flex:1}.check-form .check-row input::placeholder{color:#8b9794}
-@media(max-width:760px){.eligibility-note{padding:14px;margin-bottom:14px}.eligibility-note p{font-size:11px}.name-lookup-note{padding:11px}.view-only-actions{display:grid;grid-template-columns:1fr 1fr}.view-only-actions .btn{width:100%}}

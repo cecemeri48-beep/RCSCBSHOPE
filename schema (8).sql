@@ -43,16 +43,21 @@ alter table public.members add column if not exists parent_address text;
 create or replace function public.assign_registration_number()
 returns trigger language plpgsql security definer set search_path = public as $$
 declare
-  v_year integer := extract(year from coalesce(new.created_at, now()))::integer;
+  v_year integer;
   v_number integer;
 begin
-  if new.registration_number is null or new.registration_number = '' then
-    insert into public.registration_counters(year, last_number)
-      values (v_year, 1)
-      on conflict (year) do update set last_number = registration_counters.last_number + 1
-      returning last_number into v_number;
-    new.registration_number := lpad(v_number::text, 3, '0') || '/RCSCBS/HOPE/' || v_year::text;
-  end if;
+  -- Never trust privileged fields supplied by a public registration client.
+  new.created_at := now();
+  new.updated_at := now();
+  new.status := 'Menunggu Verifikasi';
+  new.public_token := gen_random_uuid();
+  new.registration_number := null;
+  v_year := extract(year from new.created_at)::integer;
+  insert into public.registration_counters(year, last_number)
+    values (v_year, 1)
+    on conflict (year) do update set last_number = registration_counters.last_number + 1
+    returning last_number into v_number;
+  new.registration_number := lpad(v_number::text, 3, '0') || '/RCSCBS/HOPE/' || v_year::text;
   return new;
 end;
 $$;
@@ -83,7 +88,11 @@ alter table public.admin_users enable row level security;
 
 drop policy if exists "public can submit member registration" on public.members;
 create policy "public can submit member registration" on public.members for insert to anon, authenticated
-  with check (consent = true);
+  with check (
+    consent = true
+    and status = 'Menunggu Verifikasi'
+    and registration_number is not null
+  );
 
 drop policy if exists "admins can read members" on public.members;
 create policy "admins can read members" on public.members for select to authenticated
@@ -107,13 +116,33 @@ create or replace view public.member_verification as
   from public.members where status = 'Aktif';
 grant select on public.member_verification to anon, authenticated;
 
-insert into storage.buckets (id, name, public)
-values ('member-photos', 'member-photos', true)
-on conflict (id) do update set public = true;
+insert into storage.buckets (
+  id,
+  name,
+  public,
+  file_size_limit,
+  allowed_mime_types
+)
+values (
+  'member-photos',
+  'member-photos',
+  true,
+  5242880,
+  array['image/jpeg', 'image/png', 'image/webp']::text[]
+)
+on conflict (id) do update set
+  name = excluded.name,
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
 
 drop policy if exists "public can upload member photos" on storage.objects;
 create policy "public can upload member photos" on storage.objects for insert to anon, authenticated
-  with check (bucket_id = 'member-photos');
+  with check (
+    bucket_id = 'member-photos'
+    and (storage.foldername(name))[1] is null
+    and lower(storage.extension(name)) in ('jpg', 'jpeg', 'png', 'webp')
+  );
 
 drop policy if exists "public can view member photos" on storage.objects;
 create policy "public can view member photos" on storage.objects for select to anon, authenticated

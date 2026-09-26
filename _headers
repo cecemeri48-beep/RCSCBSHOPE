@@ -10,7 +10,7 @@
 /config.js
   Cache-Control: no-store
 
-/app-v102.js
+/app-v100.js
   Cache-Control: no-cache, no-store, must-revalidate
 
 /styles.css
