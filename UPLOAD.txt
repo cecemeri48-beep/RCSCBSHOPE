@@ -1,0 +1,1 @@
+Upload ketiga file ini ke root website dan timpa index.html. Jangan hapus file aset atau app-v100.js yang sudah ada.
