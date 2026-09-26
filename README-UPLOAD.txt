@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v22 optimized audio bundle
+RCS.CBS HOPE — v23 urban mural slideshow
 
 Replace/upload ONLY:
 - index.html
@@ -27,9 +27,12 @@ Replace/upload ONLY:
 Do NOT replace config.js.
 After commit and Vercel Ready, open the production URL with a fresh query parameter.
 
-Perubahan v22:
-- Ketiga lagu pengguna sudah disertakan di root proyek.
-- Semua audio dikonversi ke MP3 96 kbps dan dinormalkan untuk mobile.
-- Audio tetap preload none dan hanya dimuat setelah foto diketuk.
-- Audio tidak disimpan di Service Worker cache agar penyimpanan ponsel tetap ringan.
-- Cache halaman dinaikkan ke v22.
+Perubahan v23:
+- Ruang kosong sekeliling foto diisi komposisi grafiti/mural kota.
+- Tema kiri: romantisme masa lalu dan “Kita Pernah Muda”.
+- Tema kanan: mimpi besar masa depan dan “Mimpi Besar Tak Boleh Padam”.
+- Ditambahkan slogan pendukung, stempel propaganda, dan tekstur tembok CSS.
+- Mural berada di belakang foto sehingga tidak menutupi kenangan utama.
+- Tidak ada gambar atau library tambahan; tetap ringan untuk mobile.
+- Tiga lagu teroptimasi dan seluruh fitur slideshow tetap disertakan.
+- Cache mobile dinaikkan ke v23.

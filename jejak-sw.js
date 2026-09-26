@@ -1,5 +1,5 @@
-const CACHE = 'rcs-jejak-v22';
-const SHELL = ['jejak.html?v=22', 'jejak.css?v=22', 'jejak.js?v=22', 'jejak.webmanifest?v=22', 'album.html?v=22', 'album.css?v=22', 'album.js?v=22', 'album-data.js?v=22', 'logo-transparent-256.png', 'logo-transparent-512.png', 'logo-album-transparent.png', 'memory-cover.jpg', 'jejak-universe.jpg', 'thumbnail-jejak.jpg'];
+const CACHE = 'rcs-jejak-v23';
+const SHELL = ['jejak.html?v=23', 'jejak.css?v=23', 'jejak.js?v=23', 'jejak.webmanifest?v=23', 'album.html?v=23', 'album.css?v=23', 'album.js?v=23', 'album-data.js?v=23', 'logo-transparent-256.png', 'logo-transparent-512.png', 'logo-album-transparent.png', 'memory-cover.jpg', 'jejak-universe.jpg', 'thumbnail-jejak.jpg'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(
   caches.keys()
@@ -19,7 +19,7 @@ self.addEventListener('fetch', event => {
         const copy = response.clone();
         caches.open(CACHE).then(cache => cache.put(event.request, copy));
         return response;
-      }).catch(() => caches.match(event.request).then(cached => cached || caches.match('jejak.html?v=22')))
+      }).catch(() => caches.match(event.request).then(cached => cached || caches.match('jejak.html?v=23')))
     );
     return;
   }

@@ -2,7 +2,7 @@
   "name": "Jejak RCS.CBS HOPE",
   "short_name": "Jejak RCS",
   "description": "Jejak RCS.CBS HOPE menuju 100 tahun.",
-  "start_url": "jejak.html?v=22",
+  "start_url": "jejak.html?v=23",
   "scope": "./",
   "display": "standalone",
   "background_color": "#10262d",
