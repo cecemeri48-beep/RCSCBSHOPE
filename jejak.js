@@ -9,6 +9,80 @@
     seconds: document.querySelector('#appSeconds')
   };
   const formatDays = value => new Intl.NumberFormat('id-ID').format(value);
+
+  // Mechanical clock tick. Browsers may block audible autoplay until the first tap.
+  const soundButton = document.querySelector('#timerSoundToggle');
+  let audioContext = null;
+  let soundEnabled = localStorage.getItem('rcs-timer-sound') !== 'off';
+  let soundReady = false;
+  const updateSoundButton = () => {
+    if (!soundButton) return;
+    soundButton.setAttribute('aria-pressed', String(soundEnabled && soundReady));
+    soundButton.classList.toggle('is-on', soundEnabled && soundReady);
+    soundButton.innerHTML = soundEnabled && soundReady
+      ? '<span aria-hidden="true">🔊</span> Suara detik aktif'
+      : '<span aria-hidden="true">🔊</span> Nyalakan suara detik';
+    soundButton.setAttribute('aria-label', soundEnabled && soundReady ? 'Matikan suara detik timer' : 'Aktifkan suara detik timer');
+  };
+  const ensureAudio = async () => {
+    if (!soundEnabled) return false;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return false;
+    audioContext ||= new AudioCtx();
+    if (audioContext.state === 'suspended') await audioContext.resume();
+    soundReady = audioContext.state === 'running';
+    updateSoundButton();
+    return soundReady;
+  };
+  const playClockTick = () => {
+    if (!soundEnabled || !soundReady || !audioContext || document.hidden) return;
+    const now = audioContext.currentTime;
+    const master = audioContext.createGain();
+    const compressor = audioContext.createDynamicsCompressor();
+    compressor.threshold.value = -18;
+    compressor.knee.value = 10;
+    compressor.ratio.value = 8;
+    compressor.attack.value = 0.002;
+    compressor.release.value = 0.08;
+    master.gain.setValueAtTime(0.0001, now);
+    master.gain.exponentialRampToValueAtTime(0.42, now + 0.003);
+    master.gain.exponentialRampToValueAtTime(0.0001, now + 0.065);
+    master.connect(compressor).connect(audioContext.destination);
+    [1180, 2260].forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const toneGain = audioContext.createGain();
+      oscillator.type = index ? 'square' : 'triangle';
+      oscillator.frequency.setValueAtTime(frequency, now);
+      toneGain.gain.value = index ? 0.22 : 0.78;
+      oscillator.connect(toneGain).connect(master);
+      oscillator.start(now);
+      oscillator.stop(now + 0.07);
+    });
+  };
+  soundButton?.addEventListener('click', async event => {
+    event.stopPropagation();
+    if (soundEnabled && soundReady) {
+      soundEnabled = false;
+      soundReady = false;
+      localStorage.setItem('rcs-timer-sound', 'off');
+      await audioContext?.suspend();
+      updateSoundButton();
+      return;
+    }
+    soundEnabled = true;
+    localStorage.setItem('rcs-timer-sound', 'on');
+    if (await ensureAudio()) playClockTick();
+  });
+  const unlockSound = async event => {
+    if (event?.target?.closest?.('#timerSoundToggle')) return;
+    if (!soundEnabled || soundReady) return;
+    if (await ensureAudio()) playClockTick();
+  };
+  window.addEventListener('pointerdown', unlockSound, { once: true, passive: true });
+  window.addEventListener('keydown', unlockSound, { once: true });
+  window.addEventListener('load', () => ensureAudio().catch(() => updateSoundButton()));
+  updateSoundButton();
+
   const tick = () => {
     const remaining = Math.max(0, target - Date.now());
     const total = Math.floor(remaining / 1000);
@@ -22,7 +96,7 @@
     }
   };
   tick();
-  window.setInterval(tick, 1000);
+  window.setInterval(() => { tick(); playClockTick(); }, 1000);
 
   const status = document.querySelector('.app-status');
   const setConnectionStatus = () => {
@@ -91,5 +165,5 @@
   nextQuote?.addEventListener('click', rotateQuote);
   window.setInterval(rotateQuote, 7000);
 
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('jejak-sw.js?v=11').catch(() => {}));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('jejak-sw.js?v=14').catch(() => {}));
 })();

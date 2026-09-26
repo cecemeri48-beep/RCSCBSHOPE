@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v13 featured memory trail
+RCS.CBS HOPE — v14 timer sound
 
 Replace/upload ONLY:
 - index.html
@@ -21,11 +21,10 @@ Replace/upload ONLY:
 Do NOT replace config.js.
 After commit and Vercel Ready, open the production URL with a fresh query parameter.
 
-Perubahan v13:
-- Tombol unggulan “Jejak yang Sudah Terlewati” tetap tepat di bawah timer.
-- Thumbnail diganti dengan foto kenangan asli dari album.
-- Ajakan diperkuat menjadi “✨ BUKA FOTO-FOTO KENANGAN”.
-- Ditambahkan kilau serta pulse halus pada tombol panah, lengkap dengan reduced-motion.
-- Deskripsi menjelaskan bahwa halaman berisi foto-foto kenangan.
-- Nama “Album Kenangan” diperbarui menjadi “Jejak yang Sudah Terlewati”.
-- Cache Jejak dinaikkan ke v13 agar aset terbaru segera dimuat.
+Perubahan v14:
+- Mini app Jejak memiliki suara detik jam mekanis yang kuat dan sinkron dengan timer.
+- Suara dicoba otomatis; jika diblokir browser, sentuhan pertama di halaman akan mengaktifkannya.
+- Tombol “Nyalakan suara detik” tersedia untuk kontrol aktif/mati.
+- Preferensi mati disimpan agar pengguna tidak dipaksa mendengar lagi.
+- Kontrol suara responsif, aksesibel, dan menghormati reduced-motion.
+- Cache Jejak dinaikkan ke v14.
