@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v17 album source label cleanup
+RCS.CBS HOPE — v18 mobile cache refresh
 
 Replace/upload ONLY:
 - index.html
@@ -23,7 +23,9 @@ Replace/upload ONLY:
 Do NOT replace config.js.
 After commit and Vercel Ready, open the production URL with a fresh query parameter.
 
-Perubahan v17:
-- Teks “Album ini mengambil foto publik dari Google Drive” disembunyikan.
-- Tautan untuk membuka album di Google Drive juga disembunyikan sepenuhnya.
-- Semua fitur visual, suara timer, dan keep-alive versi sebelumnya tetap disertakan.
+Perubahan v18:
+- Teks dan tautan Google Drive tetap dihapus sepenuhnya.
+- Semua tautan album/mini app diberi versi v18 untuk melewati cache lama di mobile.
+- Service Worker memakai cache baru rcs-jejak-v18.
+- Navigasi HTML sekarang network-first agar perubahan berikutnya tidak tertahan cache lama.
+- Aset statis tetap cache-first agar mini app cepat dan hemat data.

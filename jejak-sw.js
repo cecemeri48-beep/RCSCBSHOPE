@@ -1,5 +1,5 @@
-const CACHE = 'rcs-jejak-v15';
-const SHELL = ['jejak.html', 'jejak.css', 'jejak.css?v=15', 'jejak.js', 'jejak.js?v=15', 'jejak.webmanifest', 'album.html', 'album.css', 'album.js', 'album-data.js', 'logo-transparent-256.png', 'logo-transparent-512.png', 'logo-album-transparent.png', 'memory-cover.jpg', 'jejak-universe.jpg', 'thumbnail-jejak.jpg'];
+const CACHE = 'rcs-jejak-v18';
+const SHELL = ['jejak.html?v=18', 'jejak.css?v=18', 'jejak.js?v=18', 'jejak.webmanifest?v=18', 'album.html?v=18', 'album.css?v=18', 'album.js?v=18', 'album-data.js?v=18', 'logo-transparent-256.png', 'logo-transparent-512.png', 'logo-album-transparent.png', 'memory-cover.jpg', 'jejak-universe.jpg', 'thumbnail-jejak.jpg'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(
   caches.keys()
@@ -8,7 +8,20 @@ self.addEventListener('activate', event => event.waitUntil(
 ));
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  const isDocument = event.request.mode === 'navigate' || event.request.destination === 'document';
+  if (isDocument) {
+    event.respondWith(
+      fetch(event.request).then(response => {
+        const copy = response.clone();
+        caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        return response;
+      }).catch(() => caches.match(event.request).then(cached => cached || caches.match('jejak.html?v=18')))
+    );
+    return;
+  }
   event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-    const copy = response.clone(); caches.open(CACHE).then(cache => cache.put(event.request, copy)); return response;
-  }).catch(() => caches.match('jejak.html'))));
+    const copy = response.clone();
+    caches.open(CACHE).then(cache => cache.put(event.request, copy));
+    return response;
+  })));
 });

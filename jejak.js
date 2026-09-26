@@ -129,7 +129,7 @@
   const shareData = {
     title: 'Jejak RCS.CBS HOPE — Menuju 100 Tahun',
     text: 'Jejak Yang Akan Selalu Nampak. Teman pencinta alam dan semesta.',
-    url: new URL('jejak.html?v=3', document.baseURI).href
+    url: new URL('jejak.html?v=18', document.baseURI).href
   };
   shareButton?.addEventListener('click', async () => {
     try {
@@ -181,5 +181,5 @@
   nextQuote?.addEventListener('click', rotateQuote);
   window.setInterval(rotateQuote, 7000);
 
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('jejak-sw.js?v=15').catch(() => {}));
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('jejak-sw.js?v=18').catch(() => {}));
 })();
