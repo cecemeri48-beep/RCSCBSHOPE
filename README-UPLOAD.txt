@@ -1,4 +1,4 @@
-RCS.CBS HOPE — v16 daily database health check
+RCS.CBS HOPE — v17 album source label cleanup
 
 Replace/upload ONLY:
 - index.html
@@ -15,8 +15,6 @@ Replace/upload ONLY:
 - jejak.js
 - jejak.webmanifest
 - jejak-sw.js
-- vercel.json
-- api/keep-alive.js
 - supabase/keepalive.sql
 - README-KEEPALIVE.txt
 - thumbnail-jejak.jpg
@@ -25,15 +23,7 @@ Replace/upload ONLY:
 Do NOT replace config.js.
 After commit and Vercel Ready, open the production URL with a fresh query parameter.
 
-Perubahan v16:
-- Vercel Cron memanggil /api/keep-alive sekali setiap hari.
-- Endpoint menjalankan satu RPC Supabase yang sangat ringan.
-- Tidak membaca/menulis tabel anggota dan tidak mengekspos data pribadi.
-- Mendukung CRON_SECRET serta timeout 12 detik.
-- Ditambahkan panduan lengkap README-KEEPALIVE.txt.
-- Visual dan suara mini app v15 tetap dipertahankan.
-
-WAJIB setelah push:
-1. Jalankan supabase/keepalive.sql di Supabase SQL Editor.
-2. Isi SUPABASE_URL, SUPABASE_ANON_KEY, dan CRON_SECRET di Vercel.
-3. Redeploy lalu cek Cron Jobs dan Function Logs.
+Perubahan v17:
+- Teks “Album ini mengambil foto publik dari Google Drive” disembunyikan.
+- Tautan untuk membuka album di Google Drive juga disembunyikan sepenuhnya.
+- Semua fitur visual, suara timer, dan keep-alive versi sebelumnya tetap disertakan.
