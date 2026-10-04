@@ -420,7 +420,38 @@ function romanNumber(value){const map=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'
 function arabicIndic(value){return String(value).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[Number(d)]);}
 function generateMemberId(sequence){const clean=String(sequence||'').trim();if(!/^\d{1,4}$/.test(clean)){toast('Masukkan nomor urut admin terlebih dahulu, contoh 001');return null;}const ordinal=Number(clean);if(ordinal<1||ordinal>3999){toast('Nomor urut harus antara 001 sampai 3999');return null;}const bytes=new Uint8Array(5);if(window.crypto?.getRandomValues)window.crypto.getRandomValues(bytes);else for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);const secret=[...bytes].map(x=>x.toString(36).toUpperCase().padStart(2,'0')).join('').slice(0,6);const arabicMarker=arabicIndic('8675').split('').join('.');return `RCS.CBS · ${arabicMarker} · ${romanNumber(ordinal)} · ${secret}`;}
 async function updateRegistrationNumber(id,value){const registration_number=String(value||'').trim().toUpperCase();if(!registration_number){toast('Isi nomor registrasi terlebih dahulu');return;}try{if(isConfigured()){const {error}=await sb.from('members').update({registration_number}).eq('id',id);if(error)throw error;}else{const items=demoMembers().map(m=>m.id===id?{...m,registration_number}:m);saveDemo(items)}toast('Nomor registrasi disimpan');await loadMembers();}catch(e){toast(e.message||'Nomor registrasi gagal disimpan')}}
-async function updateStatus(id,status){try{if(isConfigured()){const {error}=await sb.from('members').update({status}).eq('id',id);if(error)throw error;}else{const items=demoMembers().map(m=>m.id===id?{...m,status}:m);saveDemo(items)}toast('Status diperbarui');loadMembers();}catch(e){toast(e.message||'Status gagal diperbarui')}}
+async function updateStatus(id,status){
+  const allowed=new Set(['Menunggu Verifikasi','Perlu Perbaikan','Aktif','Nonaktif']);
+  if(!allowed.has(status)){toast('Status tidak valid');renderAdminRows();return;}
+  const select=$(`.status-select[data-id="${id}"]`);
+  if(select)select.disabled=true;
+  try{
+    if(isConfigured()){
+      const {data,error}=await sb.rpc('admin_update_member_status',{p_member_id:id,p_status:status});
+      if(error){
+        if(error.code==='PGRST202'||/admin_update_member_status/i.test(error.message||'')){
+          throw new Error('Fungsi perubahan status belum terpasang. Jalankan hotfix-v104-admin-status.sql di Supabase SQL Editor.');
+        }
+        throw error;
+      }
+      const updated=Array.isArray(data)?data[0]:data;
+      if(!updated||updated.status!==status)throw new Error('Status tidak tersimpan. Pastikan akun ini terdaftar sebagai admin.');
+    }else{
+      const items=demoMembers().map(m=>m.id===id?{...m,status}:m);
+      saveDemo(items);
+    }
+    adminMembers=adminMembers.map(m=>m.id===id?{...m,status}:m);
+    renderAdminRows();
+    toast(`Status diubah menjadi ${status}`);
+    await loadMembers();
+  }catch(e){
+    renderAdminRows();
+    toast(e.message||'Status gagal diperbarui');
+  }finally{
+    const current=$(`.status-select[data-id="${id}"]`);
+    if(current)current.disabled=false;
+  }
+}
 $('#adminLoginForm').addEventListener('submit',async e=>{e.preventDefault();const alert=$('#adminAlert');clearAlert(alert);try{if(!isConfigured()){if(!localDemoAllowed)throw new Error('Koneksi server belum siap di perangkat ini. Muat ulang halaman lalu coba lagi.');alertBox(alert,'Mode demo aktif: dashboard contoh dibuka. Isi config.js untuk login Supabase.','success');$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');loadMembers();return;}const {error}=await sb.auth.signInWithPassword({email:$('#adminEmail').value,password:$('#adminPassword').value});if(error)throw error;$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');await loadMembers();}catch(e){alertBox(alert,e.message||'Login gagal.','error')}});
 function csvCell(value){let text=String(value ?? '').replace(/[\r\n]+/g,' ');if(/^[=+\-@\t]/.test(text))text=`'${text}`;return `"${text.replace(/"/g,'""')}"`;}
 function downloadMembersCsv(){const headers=['No. Registrasi','Nama Anggota','Nama Orang Tua','Nama Angkatan Orang Tua','Golongan Darah Anggota','WhatsApp Orang Tua','Alamat Orang Tua','Status','Kompetensi Lulus','Tanggal Input'];const rows=adminMembers.map(m=>[m.registration_number,m.name,m.parent_name,m.cohort_name,m.blood_type,m.parent_phone,m.parent_address,m.status,memberCompetencyCodes(m).map(code=>COMPETENCY_TRACKS.find(item=>item.code===code)?.label).filter(Boolean).join(' | '),m.created_at].map(csvCell).join(','));const csv='\ufeff'+[headers.map(csvCell).join(','),...rows].join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='data-anggota-rcs-cbs-hope.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('Data berhasil diunduh');}
