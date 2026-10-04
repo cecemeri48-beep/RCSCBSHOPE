@@ -71,7 +71,7 @@ function validPhone(value='') { return /^(?:08|62|\+62)\d{8,14}$/.test(normalize
 function displayRegistrationNumber(member={}) {
   const value=String(member.registration_number || '').trim();
   if(!value) return 'Nomor belum diterbitkan';
-  if(member.status !== 'Aktif') return value;
+  if(!isNameLookup(member) || member.status !== 'Aktif') return value;
   if(/[•*]{3,}\s*$/.test(value)) return value;
   return value.replace(/([A-Z0-9]+)\s*$/i, match => '•'.repeat(Math.min(Math.max(match.trim().length,4),6)));
 }
