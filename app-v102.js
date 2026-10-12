@@ -1,6 +1,14 @@
 const cfg = window.RCS_CONFIG || {};
 const hasSupabase = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase?.createClient);
-const sb = hasSupabase ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : null;
+// Upgrade the old root-scope PWA worker before reading any backend data.
+// v28 cached cross-origin GETs (including authenticated Supabase responses).
+const backendReady = prepareBackendCache();
+const sb = hasSupabase ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+  global: { fetch: async (input, options={}) => {
+    await backendReady;
+    return window.fetch(input, {...options, cache:'no-store'});
+  } }
+}) : null;
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const demoKey = 'rcs-cbs-hope-demo-members';
@@ -96,7 +104,45 @@ function requireBackend() {
   if (!isConfigured() && !localDemoAllowed) throw new Error('Koneksi server belum siap di perangkat ini. Muat ulang halaman dan pastikan JavaScript tidak diblokir.');
 }
 
-function withTimeout(promise, ms, message) { return Promise.race([promise, new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms))]); }
+async function withTimeout(promise, ms, message) {
+  let timer;
+  try { return await Promise.race([promise, new Promise((_, reject) => { timer=setTimeout(() => reject(new Error(message)), ms); })]); }
+  finally { clearTimeout(timer); }
+}
+async function prepareBackendCache() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const previous=await navigator.serviceWorker.getRegistration();
+    if (!previous) return;
+    const registration=await withTimeout(navigator.serviceWorker.register('jejak-sw.js?v=107'),15000,'Pembaruan cache terlalu lama.');
+    const worker=registration.installing || registration.waiting;
+    if (worker && worker.state !== 'activated') {
+      await withTimeout(new Promise((resolve,reject)=>{
+        const changed=()=>{
+          if(worker.state==='activated'){worker.removeEventListener('statechange',changed);resolve();}
+          else if(worker.state==='redundant'){worker.removeEventListener('statechange',changed);reject(new Error('Pembaruan cache gagal.'));}
+        };
+        worker.addEventListener('statechange',changed); changed();
+      }),15000,'Pembaruan cache terlalu lama.');
+    }
+    // Also purge API/private responses from existing caches if any remain.
+    if ('caches' in window) {
+      for (const name of await caches.keys()) {
+        if (!name.startsWith('rcs-jejak-')) continue;
+        const cache=await caches.open(name);
+        for (const request of await cache.keys()) {
+          const url=new URL(request.url);
+          if(url.origin!==window.location.origin || /\/(?:rest|auth|storage|api)\//.test(url.pathname)) await cache.delete(request);
+        }
+      }
+    }
+  } catch(error) {
+    console.error('Pembaruan cache gagal:',error);
+    throw new Error('Cache aplikasi belum berhasil diperbarui. Sambungkan internet, tutup tab lalu buka kembali sebelum mengirim data.');
+  }
+}
+// Avoid an unhandled rejection before the first user action.
+backendReady.catch(()=>{});
 async function optimizePhoto(file) {
   if (!file || file.size <= 1.5 * 1024 * 1024) return file;
   try {
@@ -243,7 +289,8 @@ async function openPrintCard(member, mode='pdf') {
 }
 $('#registrationForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  const form = event.currentTarget; const alert = $('#registrationAlert'); const successPanel=$('#registrationSuccess'); clearAlert(alert); successPanel?.classList.add('hidden');
+  const form = event.currentTarget;
+  if(form.querySelector('button[type=submit]').disabled) return; const alert = $('#registrationAlert'); const successPanel=$('#registrationSuccess'); clearAlert(alert); successPanel?.classList.add('hidden');
   const data = new FormData(form); const file = data.get('photo');
   if (!validPhone(data.get('parent_phone'))) { alertBox(alert, 'Nomor WhatsApp tidak valid. Gunakan format 08xxxxxxxxxx atau 628xxxxxxxxxx.', 'error'); return; }
   const button = form.querySelector('button[type=submit]'); button.disabled = true; button.innerHTML='Mengunggah foto…';
@@ -254,22 +301,24 @@ $('#registrationForm').addEventListener('submit', async (event) => {
     const payload = { name:data.get('name').trim().toUpperCase(), parent_name:data.get('parent_name').trim().toUpperCase(), cohort_name:data.get('cohort_name').trim().toUpperCase(), cohort_year:null, blood_type:data.get('blood_type'), parent_phone:normalizePhone(data.get('parent_phone')), parent_address:data.get('parent_address').trim().toUpperCase(), photo_path:photo.path, photo_url:photo.url, consent:Boolean(data.get('consent')), status:'Menunggu Verifikasi' };
     let member;
     if (isConfigured()) {
-      /*
-       * Do not chain .select() here. Public visitors are allowed to INSERT
-       * registrations, but they are intentionally not allowed to SELECT the
-       * private members table. INSERT ... RETURNING therefore gets rejected
-       * by RLS even though the INSERT policy itself is correct.
-       */
-      const { error } = await withTimeout(
-        sb.from('members').insert(payload),
+      // RPC returns a receipt only after INSERT succeeds, without exposing
+      // the private members table to anonymous visitors.
+      const {data:receipt,error}=await withTimeout(
+        sb.rpc('submit_member_registration',{p_payload:payload}),
         30000,
-        'Penyimpanan terlalu lama. Periksa koneksi Supabase lalu coba lagi.'
+        'Konfirmasi server terlalu lama. Data mungkin sudah masuk; minta admin memeriksa sebelum mengirim ulang.'
       );
-      if (error) throw error;
-      member={...payload, registration_number:null, public_token:null};
+      if(error) {
+        if(error.code==='PGRST202') throw new Error('Perbaikan pendaftaran belum terpasang. Admin perlu menjalankan hotfix-v107-registration-delete.sql di Supabase SQL Editor.');
+        throw error;
+      }
+      const saved=Array.isArray(receipt)?receipt[0]:receipt;
+      if(!saved?.id || saved.status!=='Menunggu Verifikasi') throw new Error('Server belum mengonfirmasi penyimpanan. Minta admin memeriksa sebelum mengirim ulang.');
+      member={...payload,...saved,registration_number:null,public_token:null};
     }
     else { const items=demoMembers(); member={...payload,id:uuid(),public_token:uuid(),registration_number:null}; items.push(member); saveDemo(items); }
-    activeMember=member; form.reset();
+    activeMember=member; form.reset(); resetPhotoPreview();
+    if (!$('#adminDashboardView').classList.contains('hidden')) refreshAdminMembers();
     alertBox(alert, 'Data berhasil dikirim. Silakan bergabung ke grup WhatsApp dan hubungi admin agar data diperiksa dan disetujui.', 'success');
     toast('Data anggota berhasil disimpan');
     setTimeout(()=>{
@@ -370,10 +419,52 @@ function renderAdminRows(){
   $$('.edit-member',tbody).forEach(el=>el.addEventListener('click',()=>{const m=adminMembers.find(x=>x.id===el.dataset.id);openEditMember(m);}));
   $$('.delete-member',tbody).forEach(el=>el.addEventListener('click',()=>deleteMember(el.dataset.id)));
 }
+let memberLoadSequence=0;
+async function requireAdminAccess() {
+  requireBackend();
+  if (!isConfigured()) return;
+  const {data,error}=await withTimeout(sb.rpc('is_admin'),15000,'Pemeriksaan izin admin terlalu lama.');
+  if(error) throw error;
+  if(data!==true) throw new Error('Akun ini tidak memiliki izin admin atau sesi sudah berakhir. Pastikan UUID akun ada di tabel admin_users.');
+}
+function resetAdminView() {
+  memberLoadSequence++;
+  adminMembers=[];
+  $('#adminDashboardView').classList.add('hidden');
+  $('#adminLoginView').classList.remove('hidden');
+  for(const id of ['totalCount','pendingCount','activeCount','unassignedCount']) $('#'+id).textContent='0';
+  renderAdminRows();
+}
 async function loadMembers() {
-  let items=[]; if (isConfigured()) { const { data, error }=await sb.from('members').select('*').order('created_at',{ascending:false}); if(error) throw error; items=data||[]; } else items=demoMembers(); adminMembers=items;
+  const sequence=++memberLoadSequence;
+  await requireAdminAccess();
+  let items=[];
+  if (isConfigured()) {
+    // Supabase limits a single response; load all pages, newest first.
+    const pageSize=500;
+    for(let offset=0;;offset+=pageSize) {
+      const {data,error}=await withTimeout(sb.from('members').select('*').order('created_at',{ascending:false}).order('id',{ascending:true}).range(offset,offset+pageSize-1),30000,'Data admin terlalu lama dimuat. Coba refresh kembali.');
+      if(error) throw error;
+      if(sequence!==memberLoadSequence) return false;
+      items.push(...(data||[]));
+      if((data||[]).length<pageSize) break;
+    }
+  } else items=demoMembers();
+  if(sequence!==memberLoadSequence) return false;
+  adminMembers=items;
   $('#totalCount').textContent=items.length; $('#pendingCount').textContent=items.filter(x=>x.status==='Menunggu Verifikasi').length; $('#activeCount').textContent=items.filter(x=>x.status==='Aktif').length; $('#unassignedCount').textContent=items.filter(x=>!x.registration_number).length;
   renderAdminRows();
+  return true;
+}
+async function refreshAdminMembers() {
+  try { await loadMembers(); clearAlert($('#adminAlert')); }
+  catch(error) { resetAdminView(); alertBox($('#adminAlert'),error.message || 'Data admin gagal dimuat. Silakan login atau coba lagi.','error'); toast('Data admin gagal dimuat; bukan daftar kosong.'); }
+}
+async function checkedMemberUpdate(id,payload) {
+  await requireAdminAccess();
+  const {data,error}=await withTimeout(sb.from('members').update(payload).eq('id',id).select('id').single(),30000,'Konfirmasi perubahan terlalu lama. Refresh untuk memeriksa hasilnya.');
+  if(error) throw error;
+  if(data?.id!==id) throw new Error('Tidak ada data yang diperbarui. Periksa izin admin.');
 }
 let editingMemberId = null;
 function closeEditMember(){const modal=$('#editMemberModal');if(!modal)return;modal.classList.add('hidden');modal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-open');editingMemberId=null;}
@@ -400,7 +491,7 @@ async function saveMemberEdit(event){
     const payload={name,parent_name,cohort_name,cohort_year:null,blood_type,parent_phone,parent_address,competencies};
     if(file){const photo=await uploadPhoto(file);payload.photo_path=photo.path;payload.photo_url=photo.url;}
     if(isConfigured()){
-      const {error}=await withTimeout(sb.from('members').update(payload).eq('id',editingMemberId),30000,'Penyimpanan terlalu lama. Periksa koneksi Supabase lalu coba lagi.'); if(error)throw error;
+      await checkedMemberUpdate(editingMemberId,payload);
     } else {saveDemo(demoMembers().map(m=>m.id===editingMemberId?{...m,...payload}:m));}
     closeEditMember(); toast('Data anggota berhasil diperbarui'); await loadMembers();
   }catch(error){alertBox(alert,error.message||'Data gagal diperbarui.','error');}
@@ -409,18 +500,38 @@ async function saveMemberEdit(event){
 $('#editMemberForm')?.addEventListener('submit',saveMemberEdit); $('#closeEditMember')?.addEventListener('click',closeEditMember); $('[data-close-edit]')?.addEventListener('click',closeEditMember); document.addEventListener('keydown',event=>{if(event.key==='Escape')closeEditMember();});
 const editPhotoInput=$('#editMemberForm input[name="edit_photo"]'); editPhotoInput?.addEventListener('change',()=>{const file=editPhotoInput.files?.[0];const preview=$('#editPhotoPreview');if(!preview)return;if(file){preview.src=URL.createObjectURL(file);preview.classList.remove('hidden');}else preview.classList.add('hidden');});
 
+const deletingMemberIds=new Set();
 async function deleteMember(id) {
+  if(deletingMemberIds.has(id)) return;
   if (!window.confirm('Hapus data anggota ini? Tindakan ini tidak dapat dibatalkan.')) return;
+  deletingMemberIds.add(id);
+  const button=$(`.delete-member[data-id="${id}"]`);
+  if(button) button.disabled=true;
   try {
-    if (isConfigured()) { const { error } = await sb.from('members').delete().eq('id', id); if (error) throw error; }
-    else { saveDemo(demoMembers().filter(member => member.id !== id)); }
-    toast('Data anggota dihapus'); await loadMembers();
+    if (isConfigured()) {
+      await requireAdminAccess();
+      const {data,error}=await withTimeout(sb.rpc('admin_delete_member',{p_member_id:id}),30000,'Konfirmasi penghapusan terlalu lama. Refresh untuk memeriksa hasilnya.');
+      if(error) {
+        if(error.code==='PGRST202') throw new Error('Perbaikan hapus belum terpasang. Jalankan hotfix-v107-registration-delete.sql di Supabase SQL Editor.');
+        throw error;
+      }
+      const deleted=Array.isArray(data)?data[0]:data;
+      if(deleted?.id!==id) throw new Error('Server belum mengonfirmasi penghapusan. Data tidak dihapus dari tampilan.');
+    } else { saveDemo(demoMembers().filter(member => member.id !== id)); }
+    // Invalidate any older SELECT that was already in flight.
+    memberLoadSequence++;
+    adminMembers=adminMembers.filter(member=>member.id!==id);
+    if(activeMember?.id===id){activeMember=null;renderResult(null);closeCardPreview();}
+    renderAdminRows();
+    toast('Data anggota benar-benar dihapus dari database');
+    await refreshAdminMembers();
   } catch (error) { toast(error.message || 'Data gagal dihapus'); }
+  finally { deletingMemberIds.delete(id); const current=$(`.delete-member[data-id="${id}"]`); if(current)current.disabled=false; }
 }
 function romanNumber(value){const map=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let n=value;return map.reduce((out,[unit,symbol])=>{while(n>=unit){out+=symbol;n-=unit;}return out;},'');}
 function arabicIndic(value){return String(value).replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[Number(d)]);}
 function generateMemberId(sequence){const clean=String(sequence||'').trim();if(!/^\d{1,4}$/.test(clean)){toast('Masukkan nomor urut admin terlebih dahulu, contoh 001');return null;}const ordinal=Number(clean);if(ordinal<1||ordinal>3999){toast('Nomor urut harus antara 001 sampai 3999');return null;}const bytes=new Uint8Array(5);if(window.crypto?.getRandomValues)window.crypto.getRandomValues(bytes);else for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);const secret=[...bytes].map(x=>x.toString(36).toUpperCase().padStart(2,'0')).join('').slice(0,6);const arabicMarker=arabicIndic('8675').split('').join('.');return `RCS.CBS · ${arabicMarker} · ${romanNumber(ordinal)} · ${secret}`;}
-async function updateRegistrationNumber(id,value){const registration_number=String(value||'').trim().toUpperCase();if(!registration_number){toast('Isi nomor registrasi terlebih dahulu');return;}try{if(isConfigured()){const {error}=await sb.from('members').update({registration_number}).eq('id',id);if(error)throw error;}else{const items=demoMembers().map(m=>m.id===id?{...m,registration_number}:m);saveDemo(items)}toast('Nomor registrasi disimpan');await loadMembers();}catch(e){toast(e.message||'Nomor registrasi gagal disimpan')}}
+async function updateRegistrationNumber(id,value){const registration_number=String(value||'').trim().toUpperCase();if(!registration_number){toast('Isi nomor registrasi terlebih dahulu');return;}try{if(isConfigured()){await checkedMemberUpdate(id,{registration_number});}else{const items=demoMembers().map(m=>m.id===id?{...m,registration_number}:m);saveDemo(items)}toast('Nomor registrasi disimpan');await loadMembers();}catch(e){toast(e.message||'Nomor registrasi gagal disimpan')}}
 async function updateStatus(id,status){
   const allowed=new Set(['Menunggu Verifikasi','Perlu Perbaikan','Aktif','Nonaktif']);
   if(!allowed.has(status)){toast('Status tidak valid');renderAdminRows();return;}
@@ -453,10 +564,49 @@ async function updateStatus(id,status){
     if(current)current.disabled=false;
   }
 }
-$('#adminLoginForm').addEventListener('submit',async e=>{e.preventDefault();const alert=$('#adminAlert');clearAlert(alert);try{if(!isConfigured()){if(!localDemoAllowed)throw new Error('Koneksi server belum siap di perangkat ini. Muat ulang halaman lalu coba lagi.');alertBox(alert,'Mode demo aktif: dashboard contoh dibuka. Isi config.js untuk login Supabase.','success');$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');loadMembers();return;}const {error}=await sb.auth.signInWithPassword({email:$('#adminEmail').value,password:$('#adminPassword').value});if(error)throw error;$('#adminLoginView').classList.add('hidden');$('#adminDashboardView').classList.remove('hidden');await loadMembers();}catch(e){alertBox(alert,e.message||'Login gagal.','error')}});
+$('#adminLoginForm').addEventListener('submit',async event=>{
+  event.preventDefault(); const alert=$('#adminAlert'); clearAlert(alert);
+  const button=event.currentTarget.querySelector('button[type=submit]');
+  if(button.disabled)return; button.disabled=true;
+  try {
+    requireBackend();
+    if(isConfigured()) {
+      const {error}=await sb.auth.signInWithPassword({email:$('#adminEmail').value.trim(),password:$('#adminPassword').value});
+      if(error)throw error;
+    }
+    if(!await loadMembers())return; // Verifies is_admin before opening the dashboard.
+    $('#adminPassword').value='';
+    $('#adminLoginView').classList.add('hidden'); $('#adminDashboardView').classList.remove('hidden');
+    if(!isConfigured())toast('Mode demo lokal — bukan data produksi');
+  } catch(error) { resetAdminView(); alertBox(alert,error.message || 'Login gagal.','error'); }
+  finally { button.disabled=false; }
+});
+async function restoreAdminSession() {
+  if(!isConfigured())return;
+  try {
+    await backendReady;
+    const {data,error}=await sb.auth.getSession(); if(error)throw error;
+    if(!data?.session)return;
+    if(!await loadMembers())return;
+    $('#adminLoginView').classList.add('hidden'); $('#adminDashboardView').classList.remove('hidden');
+  } catch(error) { resetAdminView(); alertBox($('#adminAlert'),error.message || 'Sesi admin tidak dapat dipulihkan.','error'); }
+}
+if(sb)sb.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')resetAdminView();});
+restoreAdminSession();
+// Keep an already-open admin panel up to date when registrations come in.
+window.setInterval(()=>{
+  if(!document.hidden && !$('#adminDashboardView').classList.contains('hidden')) refreshAdminMembers();
+},30000);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden && !$('#adminDashboardView').classList.contains('hidden')) refreshAdminMembers();
+});
 function csvCell(value){let text=String(value ?? '').replace(/[\r\n]+/g,' ');if(/^[=+\-@\t]/.test(text))text=`'${text}`;return `"${text.replace(/"/g,'""')}"`;}
 function downloadMembersCsv(){const headers=['No. Registrasi','Nama Anggota','Nama Orang Tua','Nama Angkatan Orang Tua','Golongan Darah Anggota','WhatsApp Orang Tua','Alamat Orang Tua','Status','Kompetensi Lulus','Tanggal Input'];const rows=adminMembers.map(m=>[m.registration_number,m.name,m.parent_name,m.cohort_name,m.blood_type,m.parent_phone,m.parent_address,m.status,memberCompetencyCodes(m).map(code=>COMPETENCY_TRACKS.find(item=>item.code===code)?.label).filter(Boolean).join(' | '),m.created_at].map(csvCell).join(','));const csv='\ufeff'+[headers.map(csvCell).join(','),...rows].join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='data-anggota-rcs-cbs-hope.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('Data berhasil diunduh');}
-$('#downloadMembers')?.addEventListener('click',downloadMembersCsv);$('#adminSearch')?.addEventListener('input',renderAdminRows);$('#adminStatusFilter')?.addEventListener('change',renderAdminRows);$('#clearAdminFilters')?.addEventListener('click',()=>{if($('#adminSearch'))$('#adminSearch').value='';if($('#adminStatusFilter'))$('#adminStatusFilter').value='';renderAdminRows();});$('#refreshMembers').addEventListener('click',()=>loadMembers());$('#adminSignOut').addEventListener('click',async()=>{if(isConfigured())await sb.auth.signOut();$('#adminDashboardView').classList.add('hidden');$('#adminLoginView').classList.remove('hidden');toast('Anda telah keluar');});
+$('#downloadMembers')?.addEventListener('click',downloadMembersCsv);$('#adminSearch')?.addEventListener('input',renderAdminRows);$('#adminStatusFilter')?.addEventListener('change',renderAdminRows);$('#clearAdminFilters')?.addEventListener('click',()=>{if($('#adminSearch'))$('#adminSearch').value='';if($('#adminStatusFilter'))$('#adminStatusFilter').value='';renderAdminRows();});$('#refreshMembers').addEventListener('click',refreshAdminMembers);
+$('#adminSignOut').addEventListener('click',async()=>{
+  try { if(isConfigured()){const {error}=await sb.auth.signOut();if(error)throw error;} resetAdminView(); toast('Anda telah keluar'); }
+  catch(error){toast(error.message || 'Gagal keluar. Coba kembali.');}
+});
 
 let adminTaps=0; let adminTapTimer=null;
 $('#adminTrigger')?.addEventListener('click',(event)=>{event.preventDefault();adminTaps++;clearTimeout(adminTapTimer);adminTapTimer=setTimeout(()=>{adminTaps=0;},1800);if(adminTaps>=5){adminTaps=0;const panel=$('#pengurus');panel.classList.toggle('hidden');if(!panel.classList.contains('hidden')){panel.scrollIntoView({behavior:'smooth'});toast('Area pengurus dibuka');}else{toast('Area pengurus ditutup');}}});
