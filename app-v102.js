@@ -296,7 +296,8 @@ $('#registrationForm').addEventListener('submit', async (event) => {
   const button = form.querySelector('button[type=submit]'); button.disabled = true; button.innerHTML='Mengunggah foto…';
   try {
     requireBackend();
-    const photo = await uploadPhoto(file);
+    const prepared=window.RCSPhotoEditor ? await window.RCSPhotoEditor.prepare(photoInput) : file;
+    const photo = await uploadPhoto(prepared);
     button.innerHTML='Menyimpan data…';
     const payload = { name:data.get('name').trim().toUpperCase(), parent_name:data.get('parent_name').trim().toUpperCase(), cohort_name:data.get('cohort_name').trim().toUpperCase(), cohort_year:null, blood_type:data.get('blood_type'), parent_phone:normalizePhone(data.get('parent_phone')), parent_address:data.get('parent_address').trim().toUpperCase(), photo_path:photo.path, photo_url:photo.url, consent:Boolean(data.get('consent')), status:'Menunggu Verifikasi' };
     let member;
@@ -333,21 +334,8 @@ $('#registrationForm').addEventListener('submit', async (event) => {
 $('#successViewCard')?.addEventListener('click',()=>$('#cek')?.scrollIntoView({behavior:'smooth'}));
 
 const photoInput=$('#registrationForm input[name="photo"]');
-const photoPreview=$('#photoPreview');
-const photoPreviewImage=$('#photoPreviewImage');
-const photoPreviewName=$('#photoPreviewName');
-const photoPreviewMeta=$('#photoPreviewMeta');
-const clearPhoto=$('#clearPhoto');
-function resetPhotoPreview(){ if(photoInput) photoInput.value=''; photoPreview?.classList.add('hidden'); if(photoPreviewImage) photoPreviewImage.removeAttribute('src'); }
-photoInput?.addEventListener('change',()=>{
-  const file=photoInput.files?.[0]; if(!file){resetPhotoPreview();return;}
-  if(file.size>5*1024*1024){ alertBox($('#registrationAlert'),'Foto maksimal 5 MB. Pilih foto yang lebih kecil.','error'); resetPhotoPreview(); return; }
-  if(photoPreviewImage) photoPreviewImage.src=URL.createObjectURL(file);
-  if(photoPreviewName) photoPreviewName.textContent=file.name;
-  if(photoPreviewMeta) photoPreviewMeta.textContent=`${(file.size/1024/1024).toFixed(2)} MB · siap dikirim`;
-  photoPreview?.classList.remove('hidden'); clearAlert($('#registrationAlert'));
-});
-clearPhoto?.addEventListener('click',resetPhotoPreview);
+function resetPhotoPreview(){window.RCSPhotoEditor?.reset(photoInput);if(photoInput)photoInput.value='';}
+window.RCSPhotoEditor?.bind({input:photoInput,container:$('#photoPreview'),onReady:()=>clearAlert($('#registrationAlert')),onError:message=>alertBox($('#registrationAlert'),message,'error')});
 
 function isUuid(value) { return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
 function normalizeVerificationInput(value='') {
@@ -489,7 +477,7 @@ async function saveMemberEdit(event){
   const button=form.querySelector('button[type=submit]'); button.disabled=true; button.textContent='Menyimpan…';
   try{
     const payload={name,parent_name,cohort_name,cohort_year:null,blood_type,parent_phone,parent_address,competencies};
-    if(file){const photo=await uploadPhoto(file);payload.photo_path=photo.path;payload.photo_url=photo.url;}
+    if(file){const prepared=window.RCSPhotoEditor ? await window.RCSPhotoEditor.prepare(form.elements.edit_photo) : file;const photo=await uploadPhoto(prepared);payload.photo_path=photo.path;payload.photo_url=photo.url;}
     if(isConfigured()){
       await checkedMemberUpdate(editingMemberId,payload);
     } else {saveDemo(demoMembers().map(m=>m.id===editingMemberId?{...m,...payload}:m));}
@@ -498,7 +486,8 @@ async function saveMemberEdit(event){
   finally{button.disabled=false;button.textContent='Simpan perubahan';}
 }
 $('#editMemberForm')?.addEventListener('submit',saveMemberEdit); $('#closeEditMember')?.addEventListener('click',closeEditMember); $('[data-close-edit]')?.addEventListener('click',closeEditMember); document.addEventListener('keydown',event=>{if(event.key==='Escape')closeEditMember();});
-const editPhotoInput=$('#editMemberForm input[name="edit_photo"]'); editPhotoInput?.addEventListener('change',()=>{const file=editPhotoInput.files?.[0];const preview=$('#editPhotoPreview');if(!preview)return;if(file){preview.src=URL.createObjectURL(file);preview.classList.remove('hidden');}else preview.classList.add('hidden');});
+const editPhotoInput=$('#editMemberForm input[name="edit_photo"]');
+window.RCSPhotoEditor?.bind({input:editPhotoInput,container:$('#editPhotoEditor'),existingPreview:$('#editPhotoPreview'),onReady:()=>clearAlert($('#editMemberAlert')),onError:message=>alertBox($('#editMemberAlert'),message,'error')});
 
 const deletingMemberIds=new Set();
 async function deleteMember(id) {

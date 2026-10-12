@@ -26,6 +26,7 @@
     <link rel="icon" href="assets/logo-transparent-256.png" />
     <link rel="stylesheet" href="styles.css?v=99" />
     <link rel="stylesheet" href="styles-v101.css" />
+    <link rel="stylesheet" href="photo-editor-v108.css?v=108" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Lewati ke konten utama</a>
@@ -92,7 +93,8 @@
               <label class="field">WhatsApp orang tua <em>*</em><input name="parent_phone" required type="tel" inputmode="tel" autocomplete="tel" pattern="(?:\+62|62|08)[0-9\s\x2d]{8,15}" title="Gunakan nomor WhatsApp aktif, misalnya 081234567890 atau 6281234567890" placeholder="08xxxxxxxxxx" /></label>
               <label class="field wide">Alamat orang tua <em>*</em><textarea name="parent_address" required autocomplete="street-address" rows="3" placeholder="Alamat lengkap orang tua"></textarea></label>
               <div class="form-section-heading wide"><b>03</b><span>Foto &amp; persetujuan</span><small>Foto jelas membantu proses verifikasi.</small></div>
-              <label class="field wide file-field">Foto anggota <em>*</em><input name="photo" required type="file" accept="image/png,image/jpeg,image/webp" /><small>JPG / PNG / WebP · maksimal 5 MB</small><div class="photo-upload-preview hidden" id="photoPreview"><img id="photoPreviewImage" alt="Pratinjau foto anggota" /><div><strong id="photoPreviewName">Foto siap dikirim</strong><small id="photoPreviewMeta"></small></div><button class="btn btn-outline small" id="clearPhoto" type="button">Ganti foto</button></div></label>
+              <label class="field wide file-field"><span>Foto anggota <em>*</em></span><input name="photo" required type="file" accept="image/png,image/jpeg,image/webp" /><small>JPG / PNG / WebP · maksimal 5 MB. Setelah dipilih, cubit atau geser untuk mengatur foto.</small></label>
+              <div id="photoPreview" class="photo-adjuster wide hidden"></div>
             </div>
             <label class="consent"><input name="consent" required type="checkbox" /><span>Saya menyetujui penyimpanan data dan foto anggota untuk administrasi RCS.CBS HOPE. <em>*</em></span></label>
             <div class="form-end"><button class="btn btn-dark" type="submit">Kirim data anggota <b>→</b></button><span>Data awal akan berstatus <strong>Menunggu Verifikasi</strong>.</span></div>
@@ -145,7 +147,8 @@
             <label class="field">WhatsApp orang tua <em>*</em><input id="editParentPhone" name="edit_parent_phone" type="tel" inputmode="tel" required /></label>
             <label class="field wide">Alamat orang tua <em>*</em><textarea id="editParentAddress" name="edit_parent_address" rows="3" required></textarea></label>
             <fieldset class="competency-editor wide"><legend>Lencana kompetensi</legend><p>Centang hanya setelah anggota dinyatakan lulus. Bintang emas otomatis muncul pada kartu.</p><div class="competency-options"><label><input type="checkbox" name="edit_competency" value="rimba" /><span>★</span> JEJAK RIMBA</label><label><input type="checkbox" name="edit_competency" value="vertikal" /><span>★</span> JEJAK VERTIKAL</label><label><input type="checkbox" name="edit_competency" value="speleo" /><span>★</span> JEJAK SPELEO</label><label><input type="checkbox" name="edit_competency" value="maritim" /><span>★</span> JEJAK MARITIM</label><label><input type="checkbox" name="edit_competency" value="kultura" /><span>★</span> JEJAK KULTURA</label><label><input type="checkbox" name="edit_competency" value="mastermind" /><span>★</span> JEJAK MASTERMIND</label></div></fieldset>
-            <label class="field wide">Ganti foto anggota <input name="edit_photo" type="file" accept="image/png,image/jpeg,image/webp" /><small>Kosongkan jika foto tidak diubah · maksimal 5 MB</small><img id="editPhotoPreview" class="edit-photo-preview hidden" alt="Pratinjau foto" /></label>
+            <label class="field wide">Ganti foto anggota <input name="edit_photo" type="file" accept="image/png,image/jpeg,image/webp" /><small>Kosongkan jika foto tidak diubah · maksimal 5 MB. Foto baru bisa dicubit dan digeser.</small><img id="editPhotoPreview" class="edit-photo-preview hidden" alt="Foto anggota saat ini" /></label>
+            <div id="editPhotoEditor" class="photo-adjuster wide hidden"></div>
           </div>
           <div class="form-alert" id="editMemberAlert" role="status" aria-live="polite"></div>
           <div class="edit-member-actions"><button class="btn btn-outline" id="cancelEditMember" type="button" data-close-edit>Batal</button><button class="btn btn-dark" type="submit">Simpan perubahan <b>→</b></button></div>
@@ -162,7 +165,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="qrcode.min.js?v=92"></script>
     <script src="config.js?v=92"></script>
-    <script src="app-v102.js?v=107"></script>
+    <script src="photo-editor-v108.js?v=108"></script>
+    <script src="app-v102.js?v=108"></script>
     <script src="ux-v101.js?v=104"></script>
   </body>
 </html>

@@ -1,0 +1,33 @@
+/* Compact inline photo editor: fixed portal palette; touch gestures stay
+   inside the photo, while scrolling works normally outside it. */
+.photo-adjuster{min-width:0;padding:16px;border:1px solid #d6e1dc;border-radius:12px;background:#f6f8f6;color:#142228;font-size:14px;line-height:1.5}
+.photo-adjuster.hidden{display:none!important}
+.photo-adjuster-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.photo-adjuster-head strong{font-size:16px;font-weight:700}
+.photo-zoom-badge{padding:4px 8px;border:1px solid #ccdcd3;border-radius:6px;background:#fff;font-variant-numeric:tabular-nums;color:#245743;font-weight:700;min-width:60px;text-align:center}
+.photo-adjuster .photo-adjuster-hint{margin:8px 0 16px;color:#4e6063;font-size:14px;line-height:1.5}
+.photo-crop-stage{position:relative;width:min(100%,250px);aspect-ratio:5/6;margin:0 auto;border-radius:10px;overflow:hidden;background:#e3e9e5;outline:2px solid #fff;box-shadow:0 0 0 3px #bdcfc4}
+.photo-crop-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.photo-crop-canvas.is-dragging{cursor:grabbing}
+.photo-crop-canvas:focus-visible{outline:3px solid #2783de;outline-offset:-4px}
+.photo-crop-guide{position:absolute;inset:0;pointer-events:none;border:1px solid rgba(255,255,255,.55);border-radius:10px;background:linear-gradient(to right,transparent 33.1%,rgba(255,255,255,.3) 33.3%,transparent 33.6%,transparent 66.3%,rgba(255,255,255,.3) 66.6%,transparent 66.9%),linear-gradient(to bottom,transparent 33.1%,rgba(255,255,255,.3) 33.3%,transparent 33.6%,transparent 66.3%,rgba(255,255,255,.3) 66.6%,transparent 66.9%)}
+.photo-zoom-controls{display:flex;align-items:end;gap:12px;margin:20px auto 0;max-width:400px}
+.photo-slider-label{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px;font-size:14px;color:#394e51;font-weight:600}
+.photo-adjuster input.photo-zoom-slider{width:100%;height:44px;margin:0;padding:0;accent-color:#276952;background:transparent;border:0;cursor:pointer}
+.photo-adjuster button{font:inherit;font-size:14px;min-height:44px;border:1px solid #c6d5cd;border-radius:8px;padding:8px 12px;background:#fff;color:#254f40;cursor:pointer}
+.photo-adjuster .photo-zoom-controls button{width:44px;flex-shrink:0;padding:0;font-size:24px;font-weight:600}
+.photo-adjuster button:hover{background:#e8f1ec}
+.photo-adjuster button:focus-visible,.photo-zoom-slider:focus-visible{outline:3px solid #2783de;outline-offset:2px}
+.photo-adjuster button:disabled,.photo-zoom-slider:disabled{opacity:.5;cursor:wait}
+.photo-adjuster-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.photo-adjuster .photo-adjuster-meta{margin:16px 0 4px;color:#4e6063;font-size:14px;overflow-wrap:anywhere}
+.photo-adjuster .photo-adjuster-note{margin:0;color:#394e51;font-size:14px}
+@media(max-width:480px){.photo-adjuster{padding:12px}.photo-crop-stage{width:min(100%,230px)}.photo-zoom-controls{gap:8px}.photo-adjuster-head strong{font-size:15px}}
+
+/* Keep the tall admin photo editor above the fixed mobile navigation. */
+.edit-member-modal{z-index:90}
+
+/* The wizard itself must span the full form, including on desktop. */
+#registrationForm .wizard-shell{grid-template-columns:minmax(0,1fr)}
+#registrationForm .wizard-panel>.consent,#registrationForm .wizard-panel>.form-end{grid-column:1/-1}
+#editPhotoPreview.hidden{display:none!important}
